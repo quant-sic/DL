@@ -1,3 +1,4 @@
 a.out
 .remote-sync.json
 build/*
+.vscode
