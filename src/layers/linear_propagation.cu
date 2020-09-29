@@ -109,7 +109,7 @@ void linear_forward_gpu(double* w,
 			int     a_cols)
 {
   // multiply w*a
-  matMul_sm_onDev_tr(a, w, 0, 0, batchsize, neurons_in, neurons_in, neurons_out, z);
+  matMul_sm_onDev(a, w, batchsize, neurons_out, neurons_in, z);
   add_along_col_direct_onDev(z, b, batchsize, neurons_out);
 }
 

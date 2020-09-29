@@ -85,6 +85,25 @@ int main(int argc, char **argv)
   for(int i =0;i<size;i++) rhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
 
 
+  t1=t2=DBL_MAX;
+
+  for(int k=0;k<10;k++){
+    start=seconds();
+    matrix_hadamard_gpu(res1,lhs,rhs,size,64);
+    t=seconds()-start;
+    t1=t<t1?t:t1;
+
+    start=seconds();
+    matrix_hadamard_gpu_test_dev(res2,lhs,rhs,size,64,1);
+    t=seconds()-start;
+    t2=t<t2?t:t2;
+  }
+
+  printf("With __device__ %f\n",t1 );
+  printf("Without __device__ %f\n",t2 );
+  printf("With and without __device__ fuction same result %d\n",double_equal(res1,res2,size,sqrt(2)*DBL_EPSILON));
+
+
   FILE *fp_pw = fopen("../analysis/pointwise.txt", "w");
   fprintf(fp_pw,"N\tTIME_onDEV\tTIME_HOST\n");
 
@@ -198,6 +217,10 @@ int main(int argc, char **argv)
       for(int threads_block=64;threads_block<=1024;threads_block*=2){
         t1=t2=t3=DBL_MAX;
         for (int i=0;i<5;i++){
+          start=seconds();
+          matrix_hadamard_gpu_test_dev(res2,lhs,rhs,size,1024,op_p_th);
+          t=seconds()-start;
+          t1=t<t1?t:t1;
 
           start=seconds();
           matrix_hadamard_cpu(res1,lhs,rhs,size);
