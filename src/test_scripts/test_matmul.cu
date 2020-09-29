@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
 
   srand(seconds());   // Initialization, should only be called once.
-  double *A,*B,*B_T,*B_T_T,*C1,*C2,*C3,*C4,*C5,*C6,*C7,*C8,*C9,*A_T;
+  double *A,*B,*B_T,*B_T_T,*C1,*C2,*C3,*C4,*C5,*C6,*C7,*C8,*A_T;
   double *A2,*B2,*A3,*B3,*As,*Bs,*A2s,*B2s,*one_m;
   int same_result;
 
@@ -75,7 +75,6 @@ int main(int argc, char **argv)
         C6 = (double *)malloc(C_nelem*sizeof(double));
         C7 = (double *)malloc(C_nelem*sizeof(double));
         C8 = (double *)malloc(C_nelem*sizeof(double));
-        C9 = (double *)malloc(C_nelem*sizeof(double));
 
 
         create_random_matrix(A,A_nelem,0,5);
@@ -84,39 +83,18 @@ int main(int argc, char **argv)
 
 
         matMul(A, B,M,N,K,C1);
-        matMul_gpu1(A, B,M,N,K,C2,threads_block);
-        matMul_gpu2(A, B,M,N,K,C3,threads_block);
-        matMul_gpu_dsm(A, B,M,N,K,C4,threads_block);
-        matMul_gpu_dsm_coa(A, B,M,N,K,C5,threads_block);
-        matMul_cublas(A, B,M,N,K,C6,threads_block);
         matMul_gpu_sm_tr(A, B, NORMAL,NORMAL, M, K, K, N, C7);
-        matMul_gpu_sm_tr_ind(A, B, NORMAL,NORMAL, M, K, K, N, C8);
-        matMul_gpu_sm(A, B,M,N,K,C9);
 
 
         same_result=1;
-        same_result*=double_equal(C1,C2,C_nelem,MATMUL_COMP(K));
-        same_result*=double_equal(C1,C3,C_nelem,MATMUL_COMP(K));
-        same_result*=double_equal(C1,C4,C_nelem,MATMUL_COMP(K));
-        same_result*=double_equal(C1,C5,C_nelem,MATMUL_COMP(K));
-        same_result*=double_equal(C1,C6,C_nelem,MATMUL_COMP(K));
         same_result*=double_equal(C1,C7,C_nelem,MATMUL_COMP(K));
-        same_result*=double_equal(C1,C8,C_nelem,MATMUL_COMP(K));
-        same_result*=double_equal(C1,C9,C_nelem,MATMUL_COMP(K));
+
 
 
         if (!same_result){
             printf("For M:%d,N:%d,K:%d Methods do not yield the same result\n",M,N,K);
             print_out_matrix(C1,M,N);
-            print_out_matrix(C2,M,N);
-            print_out_matrix(C3,M,N);
-            print_out_matrix(C4,M,N);
-            print_out_matrix(C5,M,N);
-            print_out_matrix(C6,M,N);
             print_out_matrix(C7,M,N);
-            print_out_matrix(C8,M,N);
-            print_out_matrix(C9,M,N);
-
             return EXIT_FAILURE;
         }
 
@@ -213,43 +191,37 @@ int main(int argc, char **argv)
 
           C1 = (double *)malloc(M*M*sizeof(double));
           C2 = (double *)malloc(M*M*sizeof(double));
-          C7 = (double *)malloc(M*M*sizeof(double));
 
           C3 = (double *)malloc(K*K*sizeof(double));
           C4 = (double *)malloc(K*K*sizeof(double));
-          C8 = (double *)malloc(K*K*sizeof(double));
 
 
           mat_transpose_gpu(A, A_T, M, K,threads_block);
 
-          matMul_gpu1(A2, A_T,M,M,K,C1,threads_block);
+          matMul(A2, A_T,M,M,K,C1);
           matMul_gpu_sm_tr(A2, A, NORMAL,TRANSPOSED, M, K, K, M,C2);
-          matMul_gpu_sm_tr_ind(A2, A, NORMAL,TRANSPOSED, M, K, K, M,C7);
 
-          if (!double_equal(C1,C2,M*M,MATMUL_COMP(K)) && !double_equal(C1,C7,M*M,MATMUL_COMP(K))){
+          if (!double_equal(C1,C2,M*M,MATMUL_COMP(K))){
              printf("For M:%d,N:%d,K:%d A*A_T same result %d\n",M,N,K);
              return EXIT_FAILURE;
           }
 
-          matMul_gpu1(A_T, A2,K,K,M,C3,threads_block);
+          matMul(A_T, A2,K,K,M,C3);
           matMul_gpu_sm_tr(A, A2, TRANSPOSED,NORMAL, K, M, M, K,C4);
-          matMul_gpu_sm_tr_ind(A, A2, TRANSPOSED,NORMAL, K, M, M, K,C8);
 
-          if (!double_equal(C3,C4,K*K,MATMUL_COMP(M))&& !double_equal(C3,C8,K*K,MATMUL_COMP(M))){
+          if (!double_equal(C3,C4,K*K,MATMUL_COMP(M))){
              printf("For M:%d,N:%d,K:%d A*A_T not same result\n",M,N,K);
              return EXIT_FAILURE;
           }
 
           C5 = (double *)malloc(K*K*sizeof(double));
           C6 = (double *)malloc(K*K*sizeof(double));
-          C9 = (double *)malloc(K*K*sizeof(double));
 
           mat_transpose_gpu(B, B_T, K, N,threads_block);
-          matMul_gpu1(A_T, B_T,K,K,M,C5,threads_block);
+          matMul(A_T, B_T,K,K,M,C5);
           matMul_gpu_sm_tr(A, B, TRANSPOSED,TRANSPOSED, K, M, M, K,C6);
-          matMul_gpu_sm_tr_ind(A, B, TRANSPOSED,TRANSPOSED, K, M, M, K,C9);
 
-          if (!double_equal(C5,C6,K*K,MATMUL_COMP(M)) && !double_equal(C5,C9,K*K,MATMUL_COMP(M))){
+          if (!double_equal(C5,C6,K*K,MATMUL_COMP(M))){
              printf("For M:%d,N:%d,K:%d A_T*B_T not same result\n",M,N,K);
              return EXIT_FAILURE;
           }

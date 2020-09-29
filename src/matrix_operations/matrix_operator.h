@@ -19,18 +19,12 @@ extern "C" {
 
   // device without overhead
   void mat_transpose_onDev(const double* dev_mat_in, double* dev_mat_out, int rows, int cols, int threads_block);
-  void matMul_onDev1(const double *d_A, const double *d_B, int M,int N,int K,double *d_C, int threads_block);
-  void matMul_onDev2(const double *d_A, const double *d_B, int M,int N,int K,double *d_C, int threads_block);
-  void matMul_dsm_onDev(const double *d_A, const double *d_B, int M,int N,int K,double *d_C,int threads_block);
-  void matMul_dsm_coa_onDev(const double *d_A, const double *d_B, int M,int N,int K,double *d_C,int threads_block);
-  void matMul_sm_onDev(const double *A, const double *B, int M,int N,int K,double *C);
   void mulAdd_onDev(double *dev_res,const double* dev_lhs,const double* dev_rhs,const double factor,int size,int threads_block);
   void matrix_hadamard_onDev(double* dev_res,const double* dev_lhs,const double* dev_rhs,int     size,int     threads_block);
   void matrix_add_onDev(double* dev_res,const double* dev_lhs,const double* dev_rhs,int     size,int     threads_block);
   void add_along_axis_onDev(const double* dev_mat_in,const double *dev_vec,double* dev_mat_out, int rows,int cols, int dim_add, int size_vec);
   void add_reduce_dim_onDev(const double* dev_mat_in,double *dev_vec_out, int rows,int cols, int dim_red,int size_vec);
   void matMul_sm_onDev_tr(const double *d_A, const double *d_B,const int A_TRANSP,const int B_TRANSP,const int rows_op_A,const int cols_op_A,const int rows_op_B,const int cols_op_B,double *d_C);
-  void matMul_sm_onDev_tr_ind(const double *d_A, const double *d_B,const int A_TRANSP,const int B_TRANSP,const int rows_op_A,const int cols_op_A,const int rows_op_B,const int cols_op_B,double *d_C);
 
   void div_along_axis_onDev(const double* dev_mat_in,const double *dev_vec,double* dev_mat_out, int rows,int cols, int dim_div, int size_vec);
   void mulAdd_direct_onDev(double* dev_lhs, const double* dev_rhs, const double factor, int size, int threads_block);

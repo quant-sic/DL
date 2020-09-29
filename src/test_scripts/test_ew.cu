@@ -67,14 +67,6 @@ int main(int argc, char **argv)
     create_random_matrix(lhs2,size,0,5);
     create_random_matrix(rhs2,size,0,5);
 
-    // test if using __device__ function makes a difference
-    matrix_hadamard_gpu(res1,lhs1,rhs1,size,64);
-    matrix_hadamard_gpu_test_dev(res2,lhs1,rhs1,size,64,1);
-
-    if(!double_equal(res1,res2,size,CEW_THRESHOLD)){
-        printf("With and without __device__ fuction different result at size :%d\n", size);
-    }
-
     // get random scalars
     double alpha,beta,gamma,delta;
     alpha=(5.0*(double)rand()/(double)RAND_MAX);

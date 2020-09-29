@@ -197,103 +197,6 @@ void mat_transpose_gpu(const double* mat_in, double* mat_out, int rows, int cols
 }
 
 
-void matMul_gpu1(const double *A, const double *B, int M,int N,int K,double *C, int threads_block)
-{
-
-    double *d_A,*d_B,*d_C;
-    CHECK(cudaMalloc((void**)&d_A,M*K*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_B,N*K*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_C,M*N*sizeof(double)));
-
-    CHECK(cudaMemcpy(d_A, A, M*K*sizeof(double), cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_B, B, K*N*sizeof(double), cudaMemcpyHostToDevice));
-
-    matMul_onDev1(d_A,d_B, M,N,K,d_C, threads_block);
-
-    // Read C from device memory
-    cudaMemcpy(C, d_C, M*N*sizeof(double),cudaMemcpyDeviceToHost);
-    CHECK(cudaGetLastError());
-
-    // Free device memory
-    CHECK(cudaFree(d_A));
-    CHECK(cudaFree(d_C));
-    CHECK(cudaFree(d_B));
-}
-
-
-void matMul_gpu2(const double *A, const double *B, int M,int N,int K,double *C,int threads_block)
-{
-
-    double *d_A,*d_B,*d_C;
-    CHECK(cudaMalloc((void**)&d_A,M*K*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_B,N*K*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_C,M*N*sizeof(double)));
-
-
-    CHECK(cudaMemcpy(d_A, A, M*K*sizeof(double), cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_B, B, K*N*sizeof(double), cudaMemcpyHostToDevice));
-
-    matMul_onDev2(d_A, d_B,  M, N, K,d_C, threads_block);
-
-
-    // Read C from device memory
-    cudaMemcpy(C, d_C, M*N*sizeof(double),cudaMemcpyDeviceToHost);
-    CHECK(cudaGetLastError());
-
-    // Free device memory
-    CHECK(cudaFree(d_B));
-    CHECK(cudaFree(d_A));
-    CHECK(cudaFree(d_C));
-}
-
-
-void matMul_gpu_dsm(const double *A, const double *B, int M,int N,int K,double *C,int threads_block)
-{
-
-    double *d_A,*d_B,*d_C;
-    CHECK(cudaMalloc((void**)&d_A,M*K*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_B,N*K*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_C,M*N*sizeof(double)));
-
-    CHECK(cudaMemcpy(d_A, A, M*K*sizeof(double), cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_B, B, K*N*sizeof(double), cudaMemcpyHostToDevice));
-
-    matMul_dsm_onDev(d_A,d_B,  M, N, K,d_C,threads_block);
-
-    // Read C from device memory
-    cudaMemcpy(C, d_C, M*N*sizeof(double),cudaMemcpyDeviceToHost);
-    CHECK(cudaGetLastError());
-
-    // Free device memory
-    CHECK(cudaFree(d_A));
-    CHECK(cudaFree(d_B));
-    CHECK(cudaFree(d_C));
-}
-
-void matMul_gpu_dsm_coa(const double *A, const double *B, int M,int N,int K,double *C,int threads_block)
-{
-
-    double *d_A,*d_B,*d_C;
-    CHECK(cudaMalloc((void**)&d_A,M*K*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_B,N*K*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_C,M*N*sizeof(double)));
-
-    CHECK(cudaMemcpy(d_A, A, M*K*sizeof(double), cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_B, B, K*N*sizeof(double), cudaMemcpyHostToDevice));
-
-    matMul_dsm_coa_onDev(d_A, d_B,  M, N, K,d_C,threads_block);
-
-    // Read C from device memory
-    cudaMemcpy(C, d_C, M*N*sizeof(double),cudaMemcpyDeviceToHost);
-    CHECK(cudaGetLastError());
-
-    // Free device memory
-    CHECK(cudaFree(d_A));
-    CHECK(cudaFree(d_B));
-    CHECK(cudaFree(d_C));
-
-}
-
 //___________________________________________________________________________________________________
 // matMul_cublas
 // computes the matrix product of double matrices with arbitrary size on device
@@ -338,30 +241,6 @@ void matMul_cublas(const double *A, const double *B, int M,int N,int K,double *C
     CHECK(cudaFree(d_C));
 }
 
-void matMul_gpu_sm(const double *A, const double *B, int M,int N,int K,double *C)
-{
-
-    double *d_A,*d_B,*d_C;
-    CHECK(cudaMalloc((void**)&d_A,M*K*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_B,N*K*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_C,M*N*sizeof(double)));
-
-    CHECK(cudaMemcpy(d_A, A, M*K*sizeof(double), cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_B, B, K*N*sizeof(double), cudaMemcpyHostToDevice));
-
-
-    matMul_sm_onDev(d_A, d_B, M,N, K,d_C);
-
-    // Read C from device memory
-    cudaMemcpy(C, d_C, M*N*sizeof(double),cudaMemcpyDeviceToHost);
-    CHECK(cudaGetLastError());
-
-    // Free device memory
-    CHECK(cudaFree(d_A));
-    CHECK(cudaFree(d_B));
-    CHECK(cudaFree(d_C));
-}
-
 
 void matMul_gpu_sm_tr(const double *A, const double *B,int A_TRANSP,int B_TRANSP,int rows_op_A,int cols_op_A,int rows_op_B,int cols_op_B, double *C)
 {
@@ -375,29 +254,6 @@ void matMul_gpu_sm_tr(const double *A, const double *B,int A_TRANSP,int B_TRANSP
     CHECK(cudaMemcpy(d_B, B, rows_op_B*cols_op_B*sizeof(double), cudaMemcpyHostToDevice));
 
     matMul_sm_onDev_tr(d_A,d_B,A_TRANSP,B_TRANSP, rows_op_A,cols_op_A,rows_op_B,cols_op_B,d_C);
-
-    // Read C from device memory
-    cudaMemcpy(C, d_C, rows_op_A*cols_op_B*sizeof(double),cudaMemcpyDeviceToHost);
-    CHECK(cudaGetLastError());
-
-    // Free device memory
-    CHECK(cudaFree(d_A));
-    CHECK(cudaFree(d_B));
-    CHECK(cudaFree(d_C));
-}
-
-void matMul_gpu_sm_tr_ind(const double *A, const double *B,int A_TRANSP,int B_TRANSP,int rows_op_A,int cols_op_A,int rows_op_B,int cols_op_B, double *C)
-{
-
-    double *d_A,*d_B,*d_C;
-    CHECK(cudaMalloc((void**)&d_A,rows_op_A*cols_op_A*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_B,rows_op_B*cols_op_B*sizeof(double)));
-    CHECK(cudaMalloc((void**)&d_C,rows_op_A*cols_op_B*sizeof(double)));
-
-    CHECK(cudaMemcpy(d_A, A, rows_op_A*cols_op_A*sizeof(double), cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_B, B, rows_op_B*cols_op_B*sizeof(double), cudaMemcpyHostToDevice));
-
-    matMul_sm_onDev_tr_ind(d_A,d_B,A_TRANSP,B_TRANSP, rows_op_A,cols_op_A,rows_op_B,cols_op_B,d_C);
 
     // Read C from device memory
     cudaMemcpy(C, d_C, rows_op_A*cols_op_B*sizeof(double),cudaMemcpyDeviceToHost);

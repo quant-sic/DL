@@ -326,10 +326,8 @@ void mulAdd_direct_cpu(double*       lhs,
 }
 
 
-
-
 //__________________________________________________________________________________________________
-// Matrix Multiplications
+// Matrix Multiplication
 
 
 // computes the matrixproduct of double matrices with arbitrary size on host
@@ -346,103 +344,6 @@ void matMul(const double *A,const double *B,int M,int N, int K,double *C)
     }
   }
 }
-
-
-
-// computes the matrix product of double matrices with arbitrary size on device
-// naive implementation
-void matMul_onDev1(const double *d_A, const double *d_B, int M,int N,int K,double *d_C, int threads_block)
-{
-  int block_dim=(int)sqrt(threads_block);
-  threads_block=block_dim*block_dim;
-  dim3 block (block_dim,block_dim);
-  dim3 grid ((N+block.x-1)/block.x,(M+block.y-1)/block.y);
-
-  // Invoke kernel
-  matMul_kernel1<<<grid, block>>>(d_A, d_B,M,N,K,d_C);
-  CHECK(cudaDeviceSynchronize());
-  CHECK(cudaGetLastError());
-}
-
-
-// computes the matrix product of double matrices with arbitrary size on device
-// naive implementation with transposed matrix A -> coalesced memory access
-void matMul_onDev2(const double *d_A, const double *d_B, int M,int N,int K,double *d_C, int threads_block)
-{
-
-		double *d_A_T;
-		CHECK(cudaMalloc((void**)&d_A_T,M*K*sizeof(double)));
-
-		int block_dim=(int)sqrt(threads_block);
-		threads_block=block_dim*block_dim;
-
-		dim3 block (block_dim,block_dim);
-		dim3 grid ((N+block.x-1)/block.x,(M+block.y-1)/block.y);
-		dim3 grid_A_T ((K+block.x-1)/block.x,(M+block.y-1)/block.y);
-
-		// Invoke kernel
-		mat_transpose_kernel<<<grid_A_T, block>>>(d_A, d_A_T, M, K);
-		CHECK(cudaDeviceSynchronize());
-		matMul_kernel2<<<grid, block>>>(d_A_T, d_B,M,N,K,d_C);
-		CHECK(cudaDeviceSynchronize());
-		CHECK(cudaGetLastError());
-}
-
-
-// computes the matrix product of double matrices with arbitrary size on device
-// tiled implementation with dynamic shared memory
-void matMul_dsm_onDev(const double *d_A, const double *d_B, int M,int N,int K,double *d_C,int threads_block)
-{
-		int block_dim=(int)sqrt(threads_block);
-		threads_block=block_dim*block_dim;
-
-		dim3 block (block_dim,block_dim);
-		dim3 grid ((N+block.x-1)/block.x,(M+block.y-1)/block.y);
-
-		// Invoke kernel
-		matMul_kernel_dsm<<<grid, block,2*threads_block*sizeof(double)>>>((const double *)d_A, (const double *)d_B,M,N,K,d_C);
-		CHECK(cudaDeviceSynchronize());
-		CHECK(cudaGetLastError());
-
-}
-
-
-// computes the matrix product of double matrices with arbitrary size on device
-// tiled implementation with dynamic shared memory and coalesced access to global memory
-void matMul_dsm_coa_onDev(const double *d_A, const double *d_B, int M,int N,int K,double *d_C,int threads_block)
-{
-
-  double *d_A_T;
-  CHECK(cudaMalloc((void**)&d_A_T,M*K*sizeof(double)));
-
-  int block_dim=(int)sqrt(threads_block);
-  threads_block=block_dim*block_dim;
-  dim3 block (block_dim,block_dim);
-  dim3 grid ((N+block.x-1)/block.x,(M+block.y-1)/block.y);
-  dim3 grid_A_T ((K+block.x-1)/block.x,(M+block.y-1)/block.y);
-
-  // Invoke kernel
-  mat_transpose_kernel<<<grid_A_T, block>>>(d_A, d_A_T, M, K);
-  CHECK(cudaDeviceSynchronize());
-  matMul_kernel_dsm_coa<<<grid, block,2*threads_block*sizeof(double)>>>((const double *)d_A_T, (const double *)d_B,M,N,K,d_C);
-  CHECK(cudaDeviceSynchronize());
-  CHECK(cudaGetLastError());
-
-  CHECK(cudaFree(d_A_T));
-}
-
-
-
-// computes the matrix product of double matrices with arbitrary size on device
-// tiled implementation with static shared memory and coalesced access to global memory
-void matMul_sm_onDev(const double *d_A, const double *d_B, int M,int N,int K,double *d_C)
-{
-  matMul_kernel_sm<<<matrix_mul_grid(N,M), get_matrix_mul_block()>>>((const double *)d_A, (const double *)d_B,M,N,K,d_C);
-  CHECK(cudaDeviceSynchronize());
-  CHECK(cudaGetLastError());
-
-}
-
 
 
 // computes the matrix product of double matrices with arbitrary size on device
@@ -482,77 +383,4 @@ void matMul_sm_onDev_tr(const double *d_A, const double *d_B,const int A_TRANSP,
       CHECK(cudaDeviceSynchronize());
       CHECK(cudaGetLastError());
     }
-}
-
-// computes the matrix product of double matrices with arbitrary size on device
-// tiled implementation with static shared memory and transposed matrices using indexing
-void matMul_sm_onDev_tr_ind(const double *d_A, const double *d_B,const int A_TRANSP,const int B_TRANSP,const int rows_op_A,const int cols_op_A,const int rows_op_B,const int cols_op_B,double *d_C)
-{
-    // assert matrizes do match
-    assert(cols_op_A==rows_op_B);
-
-    // get matrix dimensions
-    int rows_A,cols_A,rows_B,cols_B;
-    if(A_TRANSP){
-      rows_A=cols_op_A;
-      cols_A=rows_op_A;
-    }else{
-      rows_A=rows_op_A;
-      cols_A=cols_op_A;
-    }
-
-    if(B_TRANSP){
-      rows_B=cols_op_B;
-      cols_B=rows_op_B;
-    }else{
-      rows_B=rows_op_B;
-      cols_B=cols_op_B;
-    }
-
-    // Invoke kernel
-    matMul_kernel_sm_tr<<<matrix_mul_grid(cols_op_B,rows_op_A), get_matrix_mul_block()>>>((const double *)d_A, (const double *)d_B,A_TRANSP,B_TRANSP,rows_op_A,cols_op_B,cols_op_A,rows_A,cols_A,rows_B,cols_B,d_C);
-
-
-    // error handling
-    if(cudaDeviceSynchronize()||cudaGetLastError()){
-      printf("Error in matMul_sm_tr_ind_onDev\n");
-      printf("Matrix Dimensions: M %d,N %d,K %d\n",rows_op_A,cols_op_B,cols_op_A);
-
-      CHECK(cudaDeviceSynchronize());
-      CHECK(cudaGetLastError());
-    }
-}
-
-
-void matrix_hadamard_gpu_test_dev(double* res,
-			 const double* lhs,
-			 const double* rhs,
-			 int     size,
-			 int     threads_block,int op_p_th)
-{
-  // alloc cuda storage
-  double* d_res;
-  double* d_lhs;
-  double* d_rhs;
-  CHECK(cudaMalloc((void**)&d_res, size*sizeof(double)));
-  CHECK(cudaMalloc((void**)&d_lhs, size*sizeof(double)));
-  CHECK(cudaMalloc((void**)&d_rhs, size*sizeof(double)));
-
-  // moving matrices to device
-  CHECK(cudaMemcpy(d_lhs, lhs, size*sizeof(double), cudaMemcpyHostToDevice));
-  CHECK(cudaMemcpy(d_rhs, rhs, size*sizeof(double), cudaMemcpyHostToDevice));
-
-  // calling ard onDev
-  int blocks_grid = (size + (threads_block*op_p_th) - 1) / (threads_block*op_p_th);
-  matrix_hadamard_kernel<<<blocks_grid, threads_block>>>(d_res, d_lhs, d_rhs, size);
-
-  CHECK(cudaDeviceSynchronize());
-
-  // moving matrices back from memory
-  CHECK(cudaMemcpy(res, d_res, size*sizeof(double), cudaMemcpyDeviceToHost));
-
-  // free cuda storage
-  CHECK(cudaFree(d_res));
-  CHECK(cudaFree(d_rhs));
-  CHECK(cudaFree(d_lhs));
 }
