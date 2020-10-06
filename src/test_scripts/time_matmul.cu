@@ -87,32 +87,9 @@ int main(int argc, char **argv)
 
 
               start=seconds();
-              matMul_gpu1(A, B, dimsA[0],dimsB[1],dimsA[1],C,threads_block);
-              t=seconds()-start;
-              t1=(t<t1) ? t : t1 ;
-
-
-              start=seconds();
               matMul_gpu2(A, B, dimsA[0],dimsB[1],dimsA[1],C,threads_block);
               t=seconds()-start;
               t2=(t<t2) ? t : t2 ;
-
-              start=seconds();
-              matMul_gpu_dsm(A, B, dimsA[0],dimsB[1],dimsA[1],C,threads_block);
-              t=seconds()-start;
-              t3=(t<t3) ? t : t3 ;
-
-              start=seconds();
-              matMul_gpu_sm(A, B, dimsA[0],dimsB[1],dimsA[1],C);
-              t=seconds()-start;
-              t6=(t<t6) ? t : t6 ;
-
-              start=seconds();
-              matMul_gpu_dsm_coa(A, B, dimsA[0],dimsB[1],dimsA[1],C,threads_block);
-              t=seconds()-start;
-              t4=(t<t4) ? t : t4 ;
-
-
 
               start=seconds();
               matMul_cublas(A, B, dimsA[0],dimsB[1],dimsA[1],C,threads_block);
@@ -130,11 +107,6 @@ int main(int argc, char **argv)
                 t=seconds()-start;
                 t8=(t<t8) ? t : t8 ;
               }
-
-              start=seconds();
-              matMul_gpu_sm_tr_ind(A, B, NORMAL,NORMAL,dimsA[0],dimsA[1],dimsB[0],dimsB[1],C);
-              t=seconds()-start;
-              t9=(t<t9) ? t : t9 ;
 
       }
       // print to file
@@ -197,32 +169,10 @@ for(int i=0;i<=max_shift;i++){
 
 
         start=seconds();
-        matMul_onDev1(dev_D, dev_E, dimsD[0],dimsE[1],dimsD[1],dev_F,threads_block);
-        t=seconds()-start;
-        t1=(t<t1) ? t : t1 ;
-
-
-        start=seconds();
         matMul_onDev2(dev_D, dev_E, dimsD[0],dimsE[1],dimsD[1],dev_F,threads_block);
         t=seconds()-start;
         t2=(t<t2) ? t : t2 ;
 
-
-        start=seconds();
-        matMul_dsm_onDev(dev_D, dev_E, dimsD[0],dimsE[1],dimsD[1],dev_F,threads_block);
-        t=seconds()-start;
-        t3=(t<t3) ? t : t3 ;
-
-
-        start=seconds();
-        matMul_sm_onDev(dev_D, dev_E, dimsD[0],dimsE[1],dimsD[1],dev_F);
-        t=seconds()-start;
-        t6=(t<t6) ? t : t6 ;
-
-        start=seconds();
-        matMul_dsm_coa_onDev(dev_D, dev_E, dimsD[0],dimsE[1],dimsD[1],dev_F,threads_block);
-        t=seconds()-start;
-        t4=(t<t4) ? t : t4 ;
 
         cublasStatus_t stat;
         cublasHandle_t handle;
@@ -253,10 +203,6 @@ for(int i=0;i<=max_shift;i++){
           t8=(t<t8) ? t : t8 ;
         }
 
-        start=seconds();
-        matMul_sm_onDev_tr_ind(dev_D, dev_E, NORMAL,NORMAL,dimsD[0],dimsD[1],dimsE[0],dimsE[1],dev_F);
-        t=seconds()-start;
-        t9=(t<t9) ? t : t9 ;
     }
 
     // print to file
