@@ -13,7 +13,7 @@ set(CUDA_NVCC_FLAGS
   -Xcudafe "--diag_suppress=unsigned_compare_with_zero"
   ) 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 include_directories(
   ${PYTHON_INCLUDE_DIRS}
   ./src/pybind11/include
@@ -121,6 +121,7 @@ set(src_activations
   src/cost/costfunctions.cu
   src/layers/activations.h
   src/layers/activations.cu
+  src/layers/tanh.h
   ${src_test_matrix_operations}
   )
 
@@ -177,6 +178,7 @@ target_link_libraries(test_costs -lcblas -lcublas -lcurand)
 
 #_____________________________________________________________
 # test matrix / tensor device und host executable
+
 cuda_add_executable(test_CBlas src/test_scripts/test_CBlas.c ${src_test_matrix_operations})
 target_link_libraries(test_CBlas -lcblas -lcublas -lcurand)
 
@@ -243,3 +245,4 @@ target_link_libraries(test_step_network -lcblas -lcublas -lcurand ${PYTHON_LIBRA
 # measure the network cost and accuracy
 cuda_add_executable(measure_network src/test_scripts/measure_network.cpp ${src_neural_network})
 target_link_libraries(measure_network -lcblas -lcublas -lcurand ${PYTHON_LIBRARIES})
+

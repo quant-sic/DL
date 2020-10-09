@@ -5,6 +5,8 @@
 #include <float.h>
 #include <math.h>
 
+#include "../layers/tanh.h"
+
 
 // define thresholds
 #define SOFTMAX_COMP_THRESHOLD(neurons_out) ((sqrt(2+2*neurons_out))*DBL_EPSILON)
@@ -75,13 +77,13 @@ int main(int argc, char **argv)
 
 
 
-  double *act_in,*act_out_sig,*act_out_relu,*act_out_soft,*tmp,*da,*dz,*tmp2;
-  double *dev_act_in,*dev_act_out_sig,*dev_act_out_relu,*dev_act_out_soft,*dev_tmp,*dev_da,*dev_dz,*dev_tmp2;
+  double *act_in,*act_out_sig,*act_out_relu,*act_out_soft,*tmp,*da,*dz,*tmp2,*act_out_tanh;
+  double *dev_act_in,*dev_act_out_sig,*dev_act_out_relu,*dev_act_out_soft,*dev_tmp,*dev_da,*dev_dz,*dev_tmp2,*dev_act_out_tanh;
   double *d_softmax,*tmp_d_softmax,*dev_d_softmax;
 
 
-  for(int batchsize=1;batchsize<=1<<8;batchsize*=2){
-      for(int neurons_out=1;neurons_out<=1<<8;neurons_out*=2){
+  for(int batchsize=1;batchsize<=1<<3;batchsize*=2){
+      for(int neurons_out=1;neurons_out<=1<<3;neurons_out*=2){
 
     // setup
     int size=batchsize*neurons_out;
@@ -90,6 +92,7 @@ int main(int argc, char **argv)
     act_out_sig=(double *)malloc(size*sizeof(double));
     act_out_relu=(double *)malloc(size*sizeof(double));
     act_out_soft=(double *)malloc(size*sizeof(double));
+    act_out_tanh=(double *)malloc(size*sizeof(double));
     tmp=(double *)malloc(size*sizeof(double));
     tmp2=(double *)malloc(size*sizeof(double));
     da=(double *)malloc(sizeof(double)*size);
@@ -103,6 +106,7 @@ int main(int argc, char **argv)
     CHECK(cudaMalloc((void**)&dev_act_out_sig, size*sizeof(double)));
     CHECK(cudaMalloc((void**)&dev_act_out_relu, size*sizeof(double)));
     CHECK(cudaMalloc((void**)&dev_act_out_soft, size*sizeof(double)));
+    CHECK(cudaMalloc((void**)&dev_act_out_tanh, size*sizeof(double)));
     CHECK(cudaMalloc((void**)&dev_tmp, size*sizeof(double)));
     CHECK(cudaMalloc((void**)&dev_tmp2, size*sizeof(double)));
     CHECK(cudaMalloc((void**)&dev_da, size*sizeof(double)));
@@ -112,6 +116,11 @@ int main(int argc, char **argv)
     copy_host_to_device_double(da, dev_da, size);
 
 
+    // tanh 
+      tanh_activation_cpu<double>(act_in,act_out_tanh,size);
+      tanh_activation_onDev<double>(dev_act_in,dev_act_out_tanh,size);
+      copy_device_to_host_double(dev_act_out_tanh, tmp, size);
+      compare_activations("TANH Result differs beyond threshold on Host and Device",tmp, act_out_tanh,batchsize,neurons_out,RELU_COMP_THRESHOLD*10);
 
     // _____________________________________________________________________________________________
     // softmax host
@@ -223,5 +232,7 @@ int main(int argc, char **argv)
       CHECK(cudaFree(dev_d_softmax));
   }
 }
+
+printf("All Checks Done\n\n");
 
 }
