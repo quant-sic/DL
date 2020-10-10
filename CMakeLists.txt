@@ -27,14 +27,15 @@ include_directories(
 
 cmake_policy(SET CMP0023 OLD)
 
+# add libs
 add_subdirectory(lib/pybind11)
 add_subdirectory(lib/misc)
-
 add_subdirectory(lib/activations)
 add_subdirectory(lib/matrix)
 add_subdirectory(lib/layers)
 add_subdirectory(lib/cost)
 add_subdirectory(lib/matrix_operations)
+
 
 add_subdirectory(test_scripts)
 
