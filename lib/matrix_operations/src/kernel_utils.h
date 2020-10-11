@@ -1,9 +1,9 @@
 #ifndef _KERNEL_UTILS_H_
 #define _KERNEL_UTILS_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
 
   // enums
   enum pointwise_names{RELU_FUNC=0,SIGMOID_FUNC=1,D_RELU_FUNC=2,D_SIGMOID_FUNC=3};
@@ -60,8 +60,15 @@ extern "C" {
 
   __global__ void mulAdd_direct_kernel(double* lhs, const double* rhs, const double factor, int size);
   __global__ void add_along_col_direct_kernel(double* dev_mat, const double* dev_vec, int rows, int cols);
+  
+  
+  
   __global__ void add_reduce_rows_kernel(const double * __restrict__  dev_mat_in, double * __restrict__  dev_vec_out, const int rows, const int cols);
   __global__ void add_reduce_cols_kernel(const double* dev_mat_in,double *dev_vec_out, int rows,int cols);
+  
+  
+  
+  
   __global__ void func_along_axis_x_kernel(const double* dev_mat_in,const double *dev_vec,double* dev_mat_out, int rows,int cols,int func_int);
   __global__ void func_along_axis_y_kernel(const double* dev_mat_in,const double *dev_vec,double* dev_mat_out, int rows,int cols,int func_int);
   __global__ void get_max_kernel(const double * __restrict__ data, int length,double *dev_res);
@@ -81,8 +88,8 @@ extern "C" {
   double sum_func_array(const double *in, const double* target, comb_pointwise func, int size);
   double sum_func_array_onDev(const double *dev_in,const double* dev_target,int func_int,int size);
 
-#ifdef __cplusplus
-}
-#endif
+// #ifdef __cplusplus
+// }
+// #endif
 
 #endif // _KERNEL_UTILS_H_

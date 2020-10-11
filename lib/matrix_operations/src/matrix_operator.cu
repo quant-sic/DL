@@ -44,14 +44,14 @@ void add_reduce_dim_cpu(const double* mat_in,double *vec_out, int rows,int cols,
   if(dim_red==0){
     for(int i=0;i<rows;i++){
       for(int j=0;j<cols;j++){
-	vec_out[j]+=mat_in[i*cols+j];
+	      vec_out[j]+=mat_in[i*cols+j];
       }
     }
   } else if (dim_red==1) {
 
     for(int i=0;i<rows;i++){
       for(int j=0;j<cols;j++){
-	vec_out[i]+=mat_in[i*cols+j];
+	      vec_out[i]+=mat_in[i*cols+j];
       }
     }
   }

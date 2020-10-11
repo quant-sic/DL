@@ -63,9 +63,9 @@ extern "C" {
 
 
   // define algorithm thresholds
-  #define SOFTMAX_THRESHOLD (1<<12)
-  #define SOFTMAX_BB_THRESHOLD (1<<13)
-  #define D_SOFTMAX_THRESHOLD (1<<13)
+  #define SOFTMAX_THRESHOLD (1<<3)
+  #define SOFTMAX_BB_THRESHOLD (1<<3)
+  #define D_SOFTMAX_THRESHOLD (1<<3)
 
 #ifdef __cplusplus
 }

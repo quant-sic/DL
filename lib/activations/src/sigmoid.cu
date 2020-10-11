@@ -19,7 +19,7 @@ matrix& sigmoid::prop_forward(matrix& z,
   if (flag_host)
     sigmoid_activation_cpu(z.data_host.get(), a.data_host.get(), z.size());
   else
-    sigmoid_activation_onDev(z.data_device.get(), a.data_device.get(), z.size());
+    sigmoid_activation_gpu(z.data_device.get(), a.data_device.get(), z.size());
   return a;
 }
 
@@ -33,6 +33,6 @@ matrix& sigmoid::prop_backward(matrix& da,
   if (flag_host)
     sigmoid_activation_backprop_cpu(da.data_host.get(), z.data_host.get(),dz.data_host.get(), z.size());
   else
-    sigmoid_activation_backprop_onDev(da.data_device.get(), z.data_device.get(), dz.data_device.get(), z.size());
+    sigmoid_activation_backprop_gpu(da.data_device.get(), z.data_device.get(), dz.data_device.get(), z.size());
   return dz;
 }

@@ -76,3 +76,9 @@ target_link_libraries(test_step_network PRIVATE lib_neural_network_test lib_neur
 cuda_add_executable(time_network time_network.cu)
 target_link_libraries(time_network PRIVATE lib_neural_network_test lib_neural_network_src lib_neural_network_run lib_mnist_reader)
 
+
+
+#time network
+cuda_add_executable(test_functor_cuda test_functor_cuda.cu)
+target_link_libraries(test_functor_cuda PRIVATE misc_src test_matrix_operations_src)
+

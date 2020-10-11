@@ -10,9 +10,9 @@
 #ifndef _MATRIX_OPERATOR_H_
 #define _MATRIX_OPERATOR_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
 
   enum get_element_func_names{NORMAL=0,TRANSPOSED=1};
 
@@ -46,14 +46,18 @@ extern "C" {
   void matMul              (const double *A,const double *B,int M,int N, int K,double *C);
   void matrix_transpose_cpu(double* out, double* inp, int rows, int cols);
   void mulAdd_cpu(double* res, const double* lhs, const double* rhs, const double factor, int size);
+  
+  
+  
   void add_reduce_dim_cpu(const double* mat_in,double *vec_out, int rows,int cols, int dim_red,int dim_vec);
+  
   void add_along_axis_cpu(const double* mat_in,const double *vec,double* mat_out, int rows,int cols, int dim_add, int size_vec);
   void div_along_axis_cpu(const double* mat_in,const double *vec,double* mat_out, int rows,int cols, int dim_div, int size_vec);
 
   // special helper functions
   void matrix_scalar_cpu     (double* out, const double* inp, double factor, int size);
   void matrix_hadamard_gpu_test_dev(double* res,const double* lhs,const double* rhs,int     size,int     threads_block,int op_p_th);
-#ifdef __cplusplus
-}
-#endif
+// #ifdef __cplusplus
+// }
+// #endif
 #endif // _MATRIX_OPERATOR_H_

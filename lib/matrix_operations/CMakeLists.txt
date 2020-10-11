@@ -6,6 +6,11 @@ cuda_add_library( matrix_operations_src
     src/matrix_operator_gpu.h
     src/matrix_operator.cu
     src/matrix_operator.h
+    src/reduce.cu
+    src/reduce.h
+    src/pw_comp.h
+    src/pw2d_comp.h
+    src/common_utils.h
 
     )
 

@@ -31,7 +31,6 @@ void apply_pointwise_onDev(const double *dev_in, double *dev_out, int size,int f
   CHECK(cudaDeviceSynchronize());
   CHECK(cudaGetLastError());
 }
-
 // ----------------------------------------------------------------------------------
 // relu activation and derivative and backprop on host and device (gpu here means onDev)
 void relu_activation_gpu(const double *dev_in, double *dev_out, int size){
