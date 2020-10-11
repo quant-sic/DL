@@ -58,7 +58,7 @@ target_link_libraries(measure_network PRIVATE
 
 # test layers
 cuda_add_executable(test_layers test_layers.cu)
-target_link_libraries(test_layers PRIVATE layers_src lib_layers_test lib_matrix_test)
+target_link_libraries(test_layers PRIVATE lib_layers_src lib_layers_test lib_matrix_test)
 
 # test mnist reader
 cuda_add_executable(test_mnist_reader test_mnist_reader.cu)

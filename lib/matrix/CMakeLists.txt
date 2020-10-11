@@ -19,4 +19,4 @@ cuda_add_library( lib_matrix_test
 
 #define include path    
 target_include_directories(lib_matrix_test PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/test")
-target_link_libraries(lib_matrix_test PRIVATE test_matrix_operations_src misc_src matrix_src)
+target_link_libraries(lib_matrix_test PUBLIC test_matrix_operations_src misc_src matrix_src)

@@ -1,4 +1,4 @@
-cuda_add_library( layers_src
+cuda_add_library( lib_layers_src
     
     src/dense.cpp
     src/dense.h
@@ -11,8 +11,8 @@ cuda_add_library( layers_src
     )
 
 #define include path    
-target_include_directories(layers_src PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(layers_src PUBLIC matrix_src misc_src matrix_operations_src test_matrix_operations_src activations_src)
+target_include_directories(lib_layers_src PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_link_libraries(lib_layers_src PUBLIC matrix_src misc_src matrix_operations_src test_matrix_operations_src activations_src)
 
 cuda_add_library( lib_layers_test
     
@@ -21,4 +21,4 @@ cuda_add_library( lib_layers_test
 
 #define include path    
 target_include_directories(lib_layers_test PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/test")
-target_link_libraries(lib_layers_test PRIVATE layers_src lib_matrix_test)
+target_link_libraries(lib_layers_test PRIVATE lib_layers_src lib_matrix_test)
