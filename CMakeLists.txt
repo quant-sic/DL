@@ -27,6 +27,8 @@ set(CUDA_NVCC_FLAGS
 # set cmake cxx flags. c++ standard. -fpic for shared library
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
 
+add_compile_options(-W -Wall )#-Werror)
+
 # include globally. bad form -> try to solve differently
 include_directories(
   ${PYTHON_INCLUDE_DIRS}

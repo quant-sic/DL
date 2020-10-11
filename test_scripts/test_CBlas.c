@@ -14,15 +14,13 @@
 #include <float.h>
 
 
-int main(int argc, char **argv)
+int main()
 {
  double start,t1,t;
 
  FILE *fp = fopen("../analysis/matMulTimesCBlas.txt", "w");
 
  fprintf(fp,"N\tCBlas\n");
-
- int threads_block;
 
  int max_shift=12;
 
@@ -43,8 +41,7 @@ int main(int argc, char **argv)
 
    // best of 5
    for(int k=8;k<=32;k*=2){
-
-       threads_block=k*k;
+       
        for (int j=0;j<5;j++){
 
              create_random_matrix(A,A_nelem,0,10);
