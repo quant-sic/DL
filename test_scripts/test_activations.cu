@@ -1,4 +1,3 @@
-#include "activations.h"
 #include "costfunctions.h"
 #include "test_matrix_operator.h"
 #include "common.h"
@@ -6,6 +5,8 @@
 #include <math.h>
 
 #include "tanh.h"
+#include "relu.h"
+#include "sigmoid.h"
 
 
 // define thresholds
@@ -122,53 +123,53 @@ int main(int argc, char **argv)
       copy_device_to_host_double(dev_act_out_tanh, tmp, size);
       compare_activations("TANH Result differs beyond threshold on Host and Device",tmp, act_out_tanh,batchsize,neurons_out,RELU_COMP_THRESHOLD*10);
 
-    // _____________________________________________________________________________________________
-    // softmax host
-    // softmax normalisation
-      softmax_activation_cpu(act_in,act_out_soft,batchsize,neurons_out);
-      check_act_normalisation("SOFTMAX HOST",act_out_soft,batchsize,neurons_out);
+    // // _____________________________________________________________________________________________
+    // // softmax host
+    // // softmax normalisation
+    //   softmax_activation_cpu(act_in,act_out_soft,batchsize,neurons_out);
+    //   check_act_normalisation("SOFTMAX HOST",act_out_soft,batchsize,neurons_out);
 
-    // on device
-      softmax_activation_onDev(dev_act_in,dev_act_out_soft,batchsize,neurons_out);
-      copy_device_to_host_double(dev_act_out_soft, tmp, size);
-      check_act_normalisation("SOFTMAX DEVICE",tmp,batchsize,neurons_out);
+    // // on device
+    //   softmax_activation_onDev(dev_act_in,dev_act_out_soft,batchsize,neurons_out);
+    //   copy_device_to_host_double(dev_act_out_soft, tmp, size);
+    //   check_act_normalisation("SOFTMAX DEVICE",tmp,batchsize,neurons_out);
 
-      // compare device and host
-      compare_activations("SOFTMAX Result differs beyond threshold on Host and Device",tmp, act_out_soft,batchsize,neurons_out,SOFTMAX_COMP_THRESHOLD(neurons_out));
-      if(!bigger_than_zero(tmp,size,SOFTMAX_COMP_THRESHOLD(neurons_out)) || !bigger_than_zero(act_out_soft,size,SOFTMAX_COMP_THRESHOLD(neurons_out))) printf("SOFTMAX smaller than 0 on device or host\n" );
-
-
-      // d_softmax
-      d_softmax=(double *)malloc(batchsize*neurons_out*neurons_out*sizeof(double));
-      tmp_d_softmax=(double *)malloc(batchsize*neurons_out*neurons_out*sizeof(double));
-      CHECK(cudaMalloc((void**)&dev_d_softmax, batchsize*neurons_out*neurons_out*sizeof(double)));
-
-      d_softmax_activation_cpu(act_in, d_softmax, batchsize,neurons_out);
-      d_softmax_activation_onDev(dev_act_in,dev_d_softmax,batchsize,neurons_out);
-      copy_device_to_host_double(dev_d_softmax, tmp_d_softmax, batchsize*neurons_out*neurons_out);
-
-      compare_activations("D_SOFTMAX Result differs beyond threshold on Host and Device",tmp_d_softmax, d_softmax,batchsize,neurons_out,D_SOFTMAX_COMP_THRESHOLD(neurons_out));
+    //   // compare device and host
+    //   compare_activations("SOFTMAX Result differs beyond threshold on Host and Device",tmp, act_out_soft,batchsize,neurons_out,SOFTMAX_COMP_THRESHOLD(neurons_out));
+    //   if(!bigger_than_zero(tmp,size,SOFTMAX_COMP_THRESHOLD(neurons_out)) || !bigger_than_zero(act_out_soft,size,SOFTMAX_COMP_THRESHOLD(neurons_out))) printf("SOFTMAX smaller than 0 on device or host\n" );
 
 
-      // compare Softmax Backprop
-      softmax_activation_backprop_cpu(da,act_in,dz,neurons_out,batchsize);
-      softmax_activation_backprop_onDev(dev_da,dev_act_in,dev_dz,neurons_out,batchsize);
-      copy_device_to_host_double(dev_dz, tmp, size);
+    //   // d_softmax
+    //   d_softmax=(double *)malloc(batchsize*neurons_out*neurons_out*sizeof(double));
+    //   tmp_d_softmax=(double *)malloc(batchsize*neurons_out*neurons_out*sizeof(double));
+    //   CHECK(cudaMalloc((void**)&dev_d_softmax, batchsize*neurons_out*neurons_out*sizeof(double)));
 
-      compare_activations("SOFTMAX BACKPROP Result differs beyond threshold on Host and Device",tmp, dz,batchsize,neurons_out,SOFTMAX_BB_COMP_THRESHOLD(neurons_out));
+    //   d_softmax_activation_cpu(act_in, d_softmax, batchsize,neurons_out);
+    //   d_softmax_activation_onDev(dev_act_in,dev_d_softmax,batchsize,neurons_out);
+    //   copy_device_to_host_double(dev_d_softmax, tmp_d_softmax, batchsize*neurons_out*neurons_out);
+
+    //   compare_activations("D_SOFTMAX Result differs beyond threshold on Host and Device",tmp_d_softmax, d_softmax,batchsize,neurons_out,D_SOFTMAX_COMP_THRESHOLD(neurons_out));
+
+
+    //   // compare Softmax Backprop
+    //   softmax_activation_backprop_cpu(da,act_in,dz,neurons_out,batchsize);
+    //   softmax_activation_backprop_onDev(dev_da,dev_act_in,dev_dz,neurons_out,batchsize);
+    //   copy_device_to_host_double(dev_dz, tmp, size);
+
+    //   compare_activations("SOFTMAX BACKPROP Result differs beyond threshold on Host and Device",tmp, dz,batchsize,neurons_out,SOFTMAX_BB_COMP_THRESHOLD(neurons_out));
 
 
       // _____________________________________________________________
       // relu host
-      relu_activation_cpu(act_in,act_out_relu,size);
-      relu_activation_backprop_cpu(da,act_in,dz,size);
+      relu_activation_cpu<double>(act_in,act_out_relu,size);
+      relu_activation_backprop_cpu<double>(da,act_in,dz,size);
       check_relu_backprop("RELU BACKPROP HOST",act_in,dz,da,size);
 
       //relu device
-      relu_activation_gpu(dev_act_in,dev_act_out_relu,size);
+      relu_activation_onDev(dev_act_in,dev_act_out_relu,size);
       copy_device_to_host_double(dev_act_out_relu, tmp, size);
 
-      relu_activation_backprop_gpu(dev_da,dev_act_in,dev_dz,size);
+      relu_activation_backprop_onDev(dev_da,dev_act_in,dev_dz,size);
       copy_device_to_host_double(dev_dz, tmp2, size);
       check_relu_backprop("RELU BACKPROP DEVICE",act_in,tmp2,da,size);
 
@@ -180,14 +181,14 @@ int main(int argc, char **argv)
 
       // _____________________________________________________________
       // sigmoid host
-      sigmoid_activation_cpu(act_in,act_out_sig,size);
-      sigmoid_activation_backprop_cpu(da,act_in,dz,size);
+      sigmoid_activation_cpu<double>(act_in,act_out_sig,size);
+      sigmoid_activation_backprop_cpu<double>(da,act_in,dz,size);
 
       // sigmoid device
-      sigmoid_activation_gpu(dev_act_in,dev_act_out_sig,size);
+      sigmoid_activation_onDev<double>(dev_act_in,dev_act_out_sig,size);
       copy_device_to_host_double(dev_act_out_sig, tmp, size);
 
-      sigmoid_activation_backprop_gpu(dev_da,dev_act_in,dev_dz,size);
+      sigmoid_activation_backprop_onDev<double>(dev_da,dev_act_in,dev_dz,size);
       copy_device_to_host_double(dev_dz, tmp2, size);
 
       compare_activations("SIGMOID BACKPROP Result differs beyond threshold on Host and Device",tmp2, dz,batchsize,neurons_out,SIGMOID_BB_COMP_THRESHOLD);
@@ -198,10 +199,10 @@ int main(int argc, char **argv)
       }
 
       // d_sigmoid
-      d_sigmoid_activation_cpu(act_in, dz, size);
+      d_sigmoid_activation_cpu<double>(act_in, dz, size);
 
       // sigmoid device
-      d_sigmoid_activation_gpu(dev_act_in, dev_dz, size);
+      d_sigmoid_activation_onDev<double>(dev_act_in, dev_dz, size);
       copy_device_to_host_double(dev_dz, tmp, size);
       compare_activations("D_SIGMOID Result differs beyond threshold on Host and Device",tmp, dz,batchsize,neurons_out,D_SIGMOID_COMP_THRESHOLD);
 

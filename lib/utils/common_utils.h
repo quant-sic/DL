@@ -4,7 +4,7 @@
 
 
 template<class real_type>
-using pointwise = real_type (*) (real_type);
+using pointwise_func = real_type (*) (real_type);
 
 
 

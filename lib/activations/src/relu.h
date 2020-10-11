@@ -41,8 +41,6 @@ public :
 
 
 
-
-
 // _________________________________________________________________________________________________________________________
 // activation defiinitions
 template <class real_type>
@@ -59,18 +57,18 @@ __device__ __host__ real_type d_relu_func(real_type x)
 
 // create static pointers to relu and d_relu device functions
 template <class real_type>
-__device__ pointwise<real_type> p_relu_func = relu_func<real_type>;
+__device__ pointwise_func<real_type> p_relu_func = relu_func<real_type>;
 
 template <class real_type>
-__device__ pointwise<real_type> p_d_relu_func = d_relu_func<real_type>;
+__device__ pointwise_func<real_type> p_d_relu_func = d_relu_func<real_type>;
 
 // relu activation on device
 template <class real_type>
 void relu_activation_onDev(const real_type *dev_in, real_type *dev_out, int size)
 {
 
-  pointwise<real_type> dev_relu_func;
-  cudaMemcpyFromSymbol(&dev_relu_func, p_relu_func<real_type>, sizeof(pointwise<real_type>));
+  pointwise_func<real_type> dev_relu_func;
+  cudaMemcpyFromSymbol(&dev_relu_func, p_relu_func<real_type>, sizeof(pointwise_func<real_type>));
   apply_pointwise_onDev<real_type>(dev_in, dev_out, size, dev_relu_func);
 }
 
@@ -79,8 +77,8 @@ template <class real_type>
 void d_relu_activation_onDev(const real_type *dev_in, real_type *dev_delta, int size)
 {
 
-  pointwise<real_type> dev_d_relu_func;
-  cudaMemcpyFromSymbol(&dev_d_relu_func, p_relu_func<real_type>, sizeof(pointwise<real_type>));
+  pointwise_func<real_type> dev_d_relu_func;
+  cudaMemcpyFromSymbol(&dev_d_relu_func, p_relu_func<real_type>, sizeof(pointwise_func<real_type>));
   apply_pointwise_onDev<real_type>(dev_in, dev_delta, size, dev_d_relu_func);
 }
 
@@ -88,8 +86,8 @@ void d_relu_activation_onDev(const real_type *dev_in, real_type *dev_delta, int 
 template <class real_type>
 void relu_activation_backprop_onDev(const real_type *dev_da, real_type *dev_z, real_type *dev_dz, int size)
 {
-  pointwise<real_type> dev_d_relu_func;
-  cudaMemcpyFromSymbol(&dev_d_relu_func, p_relu_func<real_type>, sizeof(pointwise<real_type>));
+  pointwise_func<real_type> dev_d_relu_func;
+  cudaMemcpyFromSymbol(&dev_d_relu_func, p_d_relu_func<real_type>, sizeof(pointwise_func<real_type>));
   hadamard_func_rhs_kernel<real_type><<<pointwise_grid(size), get_pointwise_block()>>>(dev_da, dev_z, dev_dz, size, dev_d_relu_func);
   CHECK(cudaDeviceSynchronize());
   CHECK(cudaGetLastError());

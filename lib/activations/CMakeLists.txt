@@ -15,4 +15,4 @@ cuda_add_library(activations_src
 
 #define include path    
 target_include_directories(activations_src PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(activations_src PRIVATE lib_layers_src misc_src matrix_operations_src)
+target_link_libraries(activations_src PUBLIC lib_layers_src misc_src matrix_operations_src lib_comp_utils)

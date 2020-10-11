@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
   // enums
-  enum pointwise_names{RELU=0,SIGMOID=1,D_RELU=2,D_SIGMOID=3};
+  enum pointwise_names{RELU_FUNC=0,SIGMOID_FUNC=1,D_RELU_FUNC=2,D_SIGMOID_FUNC=3};
   enum comb_pointwise_names{ADD=0,DIV=1,MUL=2,EXP_MAX=3,COMP_MAX=4,D_CAT_CROSS_ENT=5,D_RMS=6,SUMM_CAT=7,SUMM_RMS=8,D_CCE_SOFTMAX=9};
 
   // function typedefs

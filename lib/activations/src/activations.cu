@@ -17,13 +17,13 @@ double get_max(const double *data, int length){
     return max;
 }
 
-// apply pointwise function on host
+// // apply pointwise function on host
 void apply_pointwise(const double* in,double* out,int size,pointwise func){
     for(int i=0;i<size;i++) out[i]=func(in[i]);
 }
 
 
-// device helper functions
+// // device helper functions
 void apply_pointwise_onDev(const double *dev_in, double *dev_out, int size,int func_int){
 
   dim3 grid=pointwise_grid(size);
@@ -35,16 +35,16 @@ void apply_pointwise_onDev(const double *dev_in, double *dev_out, int size,int f
 // ----------------------------------------------------------------------------------
 // relu activation and derivative and backprop on host and device (gpu here means onDev)
 void relu_activation_gpu(const double *dev_in, double *dev_out, int size){
-  apply_pointwise_onDev(dev_in,dev_out,size,RELU);
+  apply_pointwise_onDev(dev_in,dev_out,size,RELU_FUNC);
 }
 
 void d_relu_activation_gpu(const double *dev_in, double *dev_delta, int size){
-  apply_pointwise_onDev(dev_in,dev_delta,size,D_RELU);
+  apply_pointwise_onDev(dev_in,dev_delta,size,D_RELU_FUNC);
 }
 
 void relu_activation_backprop_gpu(const double *dev_da,double *dev_z,double *dev_dz,int size){
   dim3 grid=pointwise_grid(size);
-  hadamard_func_kernel<<<grid,get_pointwise_block()>>>(dev_da, dev_z, dev_dz, size,D_RELU);
+  hadamard_func_kernel<<<grid,get_pointwise_block()>>>(dev_da, dev_z, dev_dz, size,D_RELU_FUNC);
   CHECK(cudaDeviceSynchronize());
   CHECK(cudaGetLastError());
 }
@@ -68,16 +68,16 @@ void relu_activation_backprop_cpu(const double *da,double *z,double *dz,int size
 // ----------------------------------------------------------------------------------
 // sigmoid activation and derivative and backprop on host and device (gpu here means onDev)
 void sigmoid_activation_gpu(const double *dev_in, double *dev_out, int size){
-    apply_pointwise_onDev(dev_in,dev_out,size,SIGMOID);
+    apply_pointwise_onDev(dev_in,dev_out,size,SIGMOID_FUNC);
 }
 
 void d_sigmoid_activation_gpu(const double *dev_in, double *dev_delta, int size){
-    apply_pointwise_onDev(dev_in,dev_delta,size,D_SIGMOID);
+    apply_pointwise_onDev(dev_in,dev_delta,size,D_SIGMOID_FUNC);
 }
 
 void sigmoid_activation_backprop_gpu(const double *dev_da,double *dev_z,double *dev_dz,int size){
     dim3 grid=pointwise_grid(size);
-    hadamard_func_kernel<<<grid,get_pointwise_block()>>>(dev_da, dev_z, dev_dz, size,D_SIGMOID);
+    hadamard_func_kernel<<<grid,get_pointwise_block()>>>(dev_da, dev_z, dev_dz, size,D_SIGMOID_FUNC);
     CHECK(cudaDeviceSynchronize());
     CHECK(cudaGetLastError());
 }
