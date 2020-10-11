@@ -1,6 +1,6 @@
 cuda_add_library( matrix_src
     
-    src/matrix.cpp
+    src/matrix.cu
     src/matrix.h
 
     )
@@ -12,7 +12,7 @@ target_link_libraries(matrix_src PUBLIC misc_src ${PYTHON_LIBRARIES})
 
 cuda_add_library( lib_matrix_test
     
-    test/test_matrices_cpp.cpp
+    test/test_matrices_cpp.cu
     test/test_matrices_cpp.h
 
     )

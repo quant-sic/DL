@@ -2,11 +2,11 @@ cuda_add_library(activations_src
     
     src/activations.cu
     src/activations.h
-    src/relu.cpp
+    src/relu.cu
     src/relu.h
-    src/sigmoid.cpp
+    src/sigmoid.cu
     src/sigmoid.h
-    src/softmax.cpp
+    src/softmax.cu
     src/softmax.h
     src/tanh.h
 

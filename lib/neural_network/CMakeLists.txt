@@ -12,7 +12,7 @@ target_link_libraries(lib_neural_network_src PUBLIC costs_src lib_neural_network
 cuda_add_library(lib_neural_network_test
     
     test/test_network.h
-    test/test_network.cpp
+    test/test_network.cu
 
     )
 
@@ -24,7 +24,7 @@ target_link_libraries(lib_neural_network_test PUBLIC matrix_src misc_src lib_neu
 cuda_add_library(lib_neural_network_run
     
     run/run_network.h
-    run/run_network.cpp
+    run/run_network.cu
 
     )
 

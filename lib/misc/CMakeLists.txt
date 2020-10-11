@@ -4,7 +4,7 @@ cuda_add_library( misc_src
     common.c
     global.h
     global.cu
-    timer.cpp
+    timer.cu
     timer.h
     )
 

@@ -1,10 +1,10 @@
 cuda_add_library( lib_layers_src
     
-    src/dense.cpp
+    src/dense.cu
     src/dense.h
-    src/layers.cpp
+    src/layers.cu
     src/layers.h
-    src/linear.cpp
+    src/linear.cu
     src/linear.h
     src/linear_propagation.cu
     src/linear_propagation.h
