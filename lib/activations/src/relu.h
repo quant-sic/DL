@@ -11,6 +11,11 @@
 #define _RELU_H_
 
 #include "layers.h"
+#include "global.h"
+#include "common_utils.h"
+#include "device_utils.h"
+#include "host_utils.h"
+
 
 //_________________________________________________________________________________________________
 // class for the relu layer
