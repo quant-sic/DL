@@ -4,7 +4,7 @@
 
 #include <fstream>
 #include <ostream>
-#include "../neural_network/mnist_reader.h"
+#include "mnist_reader.h"
 
 void write_mnist_to_file(std::string f_out, std::vector <matrix>& v_data, std::vector <matrix>& v_labels);
 

@@ -11,7 +11,7 @@
 #define _TEST_LAYERS_H_
 
 #include <float.h>
-#include "../layers/layers.h"
+#include "layers.h"
 #include "test_matrices_cpp.h"
 
 //________________________________________________________________________________________________

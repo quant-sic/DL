@@ -9,13 +9,13 @@
 #include <float.h>
 
 // own c headers
-#include "../common.h"
-#include "../global.h"
-#include "../matrix_operations/matrix_operator.h"
-#include "../matrix_operations/matrix_operator_gpu.h"
-#include "../matrix_operations/kernel_utils.h"
-#include "../layers/activations.h"
-#include "../cost/costfunctions.h"
+#include "common.h"
+#include "global.h"
+#include "matrix_operator.h"
+#include "matrix_operator_gpu.h"
+#include "kernel_utils.h"
+#include "activations.h"
+#include "costfunctions.h"
 
 
 int main(int argc, char **argv)
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
 
   // cost reduction using categorical categorical_crossentropy
-  FILE *fp_rowred = fopen("../analysis/rowredcost.txt", "w");
+  FILE *fp_rowred = fopen("analysis/rowredcost.txt", "w");
   fprintf(fp_rowred,"N\tCostTIME_onDEV\tCostTIME_HOST\n");
 
   for(size=1;size<=(1<<22);size<<=1){
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 
 
     // scale analysis cost reduction
-    FILE *fp_rowred_an = fopen("../analysis/rowredcost_analysis.txt", "w");
+    FILE *fp_rowred_an = fopen("analysis/rowredcost_analysis.txt", "w");
     fprintf(fp_rowred_an,"N\tCostTIME_onDEV_T1\tCostTIME_HOST\tCostTIME_HOST_Tp\n");
 
 
@@ -140,7 +140,7 @@ int main(int argc, char **argv)
 
 
   // matrix row reduction
-  FILE *fp_rowred_mr = fopen("../analysis/rowredmr.txt", "w");
+  FILE *fp_rowred_mr = fopen("analysis/rowredmr.txt", "w");
   fprintf(fp_rowred_mr,"N_ROWS\tN_COLS\tMRTIME_onDEV\tMRTIME_HOST\tCT_DtH_M\tCT_HtD_V\n");
 
 
@@ -195,7 +195,7 @@ int main(int argc, char **argv)
 
 
   // scale analysis matrix row reduction
-  FILE *fp_rowred_mr_an = fopen("../analysis/rowredmr_analysis.txt", "w");
+  FILE *fp_rowred_mr_an = fopen("analysis/rowredmr_analysis.txt", "w");
   fprintf(fp_rowred_mr_an,"N_ROWS\tN_COLS\tN_Threads\tMRTIME_onDEV_T1\tMRTIME_HOST\tMRTIME_onDEV_Tp\n");
 
 
@@ -265,7 +265,7 @@ int main(int argc, char **argv)
 
 
   // matric col reduction
-  FILE *fp_colred_mr = fopen("../analysis/colredmr.txt", "w");
+  FILE *fp_colred_mr = fopen("analysis/colredmr.txt", "w");
   fprintf(fp_colred_mr,"N_ROWS\tN_COLS\tMRTIME_onDEV\tMRTIME_HOST\tCT_DtH_M\tCT_HtD_V\n");
 
 

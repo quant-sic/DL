@@ -11,11 +11,11 @@
 #include <iostream>
 
 // own headers
-#include "../cost/costfunctions.h"
-#include "../layers/activations.h"
-#include "../matrix_operations/test_matrix_operator.h"
-#include "../matrix_operations/matrix_operator.h"
-#include "../common.h"
+#include "costfunctions.h"
+#include "activations.h"
+#include "test_matrix_operator.h"
+#include "matrix_operator.h"
+#include "common.h"
 #include <float.h>
 #include <math.h>
 

@@ -1,0 +1,4 @@
+# add executables for run scripts
+# __________________________________________________________________________________________________________________________________
+cuda_add_executable(run_network run_network.cu)
+target_link_libraries(run_network PRIVATE misc_src lib_neural_network_src lib_neural_network_test lib_mnist_reader)

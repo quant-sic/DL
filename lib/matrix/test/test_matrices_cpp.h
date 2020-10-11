@@ -12,7 +12,7 @@
 
 #include <tuple>
 #include <algorithm>
-#include "../neural_network/matrix.h"
+#include "matrix.h"
 
 // funtions to compare 2 matrices
 std::tuple <bool, double, double, double> compare_matrices_cpp(matrix& lhs, matrix& rhs, bool flag_host, double eps);

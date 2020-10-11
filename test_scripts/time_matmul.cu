@@ -11,17 +11,14 @@
 #include <sys/time.h>
 
 // own c headers
-#include "../common.h"
-#include "../matrix_operations/tensor.h"
-#include "../matrix_operations/matrix_operator.h"
-#include "../matrix_operations/matrix_operator_gpu.h"
-#include "../matrix_operations/test_matrix_operator.h"
+#include "common.h"
+#include "matrix_operator.h"
+#include "matrix_operator_gpu.h"
+#include "test_matrix_operator.h"
 
 // cublas headers
 #include "cublas_v2.h"
 #include <cuda_runtime.h>
-
-#include <cblas.h>
 
 
 
@@ -48,7 +45,7 @@ int main(int argc, char **argv)
 
   double start,t,t1,t2,t3,t4,t5,t6,t7,t8,t9;
 
-  FILE *fp = fopen("../analysis/matMulTimes.txt", "w");
+  FILE *fp = fopen("analysis/matMulTimes.txt", "w");
 
   fprintf(fp,"N\tT_B\tMM1\tMM2\tDSM\tDSM_COA\tcuBlas\tSM\tSM_tr\tCPU\tSM_trInd\n");
   printf("N\tT_B\tMM1\tMM2\tDSM\tDSM_COA\tcuBlas\tSM\tSM_tr\tCPU\tSM_trInd\n");
@@ -126,7 +123,7 @@ int main(int argc, char **argv)
 
 // onDev functions
 
-FILE *fp2 = fopen("../analysis/matMulTimesOnDev.txt", "w");
+FILE *fp2 = fopen("analysis/matMulTimesOnDev.txt", "w");
 
 fprintf(fp2,"N\tT_B\tMM1\tMM2\tDSM\tDSM_COA\tcuBlas\tSM\tSM_tr\tCPU\tSM_trInd\n");
 

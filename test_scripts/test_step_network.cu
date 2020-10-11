@@ -4,7 +4,7 @@
 
 #define _DEBUG_NEURAL_OPT_ 1
 
-#include "../neural_network/neural_network.h"
+#include "neural_network.h"
 #include "test_network.h"
 
 // main fucntion to run step by step

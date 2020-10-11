@@ -9,14 +9,14 @@
 #include <float.h>
 
 // own c headers
-#include "../common.h"
-#include "../global.h"
-#include "../matrix_operations/matrix_operator.h"
-#include "../matrix_operations/kernel_utils.h"
-#include "../matrix_operations/test_matrix_operator.h"
-#include "../matrix_operations/matrix_operator_gpu.h"
-#include "../layers/activations.h"
-#include "../cost/costfunctions.h"
+#include "common.h"
+#include "global.h"
+#include "matrix_operator.h"
+#include "kernel_utils.h"
+#include "test_matrix_operator.h"
+#include "matrix_operator_gpu.h"
+#include "activations.h"
+#include "costfunctions.h"
 
 // define thresholds
 #define CEW_THRESHOLD (sqrt(2)*DBL_EPSILON)

@@ -14,12 +14,12 @@
 #include <vector>
 
 // own c++ headers
-#include "../cost/costs.h"
-#include "../layers/layers.h"
-#include "../layers/linear.h"
-#include "../layers/softmax.h"
-#include "../layers/sigmoid.h"
-#include "../layers/relu.h"
+#include "costs.h"
+#include "layers.h"
+#include "linear.h"
+#include "softmax.h"
+#include "sigmoid.h"
+#include "relu.h"
 
 //_______________________________________________________________________________________________
 // class for the neural network

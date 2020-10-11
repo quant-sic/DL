@@ -1,15 +1,15 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
-#include "neural_network/matrix.h"
-#include "neural_network/neural_network.h"
-#include "test_scripts/test_network.h"
-#include "cost/costs.h"
-#include "layers/relu.h"
-#include "layers/sigmoid.h"
-#include "layers/linear.h"
-#include "layers/softmax.h"
-#include "neural_network/mnist_reader.h"
+#include "matrix.h"
+#include "neural_network.h"
+#include "test_network.h"
+#include "costs.h"
+#include "relu.h"
+#include "sigmoid.h"
+#include "linear.h"
+#include "softmax.h"
+#include "mnist_reader.h"
 
 // set up py namespace
 namespace py = pybind11;

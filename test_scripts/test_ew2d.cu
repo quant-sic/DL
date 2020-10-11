@@ -9,11 +9,11 @@
 #include <float.h>
 
 // own c headers
-#include "../common.h"
-#include "../global.h"
-#include "../matrix_operations/matrix_operator.h"
-#include "../matrix_operations/matrix_operator_gpu.h"
-#include "../matrix_operations/test_matrix_operator.h"
+#include "common.h"
+#include "global.h"
+#include "matrix_operator.h"
+#include "matrix_operator_gpu.h"
+#include "test_matrix_operator.h"
 
 // define thresholds
 #define ADD_REDUCE_DIM_THRESHOLD(dim_red,cols,rows) (10000*sqrt((dim_red ? cols:rows))*DBL_EPSILON)

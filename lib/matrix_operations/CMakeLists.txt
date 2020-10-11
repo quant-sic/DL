@@ -18,7 +18,7 @@ cuda_add_library( test_matrix_operations_src
 
 #define include path 
 target_include_directories(matrix_operations_src PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(matrix_operations_src PRIVATE misc_src)
+target_link_libraries(matrix_operations_src PRIVATE misc_src -lcublas)
 
 target_include_directories(test_matrix_operations_src PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/test")
-target_link_libraries(test_matrix_operations_src PRIVATE matrix_operations_src misc_src)
+target_link_libraries(test_matrix_operations_src PRIVATE matrix_operations_src misc_src -lcublas)

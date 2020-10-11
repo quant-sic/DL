@@ -10,9 +10,9 @@
 #include <float.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../common.h"
-#include "../matrix_operations/matrix_operator.h"
-#include "../matrix_operations/test_matrix_operator.h"
+#include "common.h"
+#include "matrix_operator.h"
+#include "test_matrix_operator.h"
 
 //_________________________________________________________________________________________________
 // main function to run tests on host and device functions

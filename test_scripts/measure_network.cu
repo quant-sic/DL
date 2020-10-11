@@ -11,11 +11,11 @@
 #include <fstream>
 
 // c++ own headers
-#include "../timer.h"
-#include "../run_scripts/run_network.h"
-#include "../test_scripts/test_network.h"
-#include "../neural_network/mnist_reader.h"
-#include "../neural_network/neural_network.h"
+#include "timer.h"
+#include "run_network.h"
+#include "test_network.h"
+#include "mnist_reader.h"
+#include "neural_network.h"
 
 //__________________________________________________________________________________________________
 // MEASURE THE NETWORK COST AND ACCURACY DEPENDING ON THE EPOCH
@@ -34,8 +34,7 @@ int main(int argc, char** argv) {
   bool flag_digit, flag_host;
   std::vector <int> v_neurons;
   std::vector <std::string> v_layers;
-  std::tie(flag_digit, flag_host, v_neurons, v_layers,
-	   cost_func, learn_rate, epochs, size_batch) = network_read_in();
+  std::tie(flag_digit, flag_host, v_neurons, v_layers,cost_func, learn_rate, epochs, size_batch) = network_read_in();
   
   // determintation of needed parameters
   std::string path_train_data, path_train_label, path_test_data, path_test_label;

@@ -9,13 +9,13 @@
 #include <float.h>
 
 // own c headers
-#include "../common.h"
-#include "../global.h"
-#include "../matrix_operations/matrix_operator.h"
-#include "../matrix_operations/matrix_operator_gpu.h"
-#include "../matrix_operations/kernel_utils.h"
-#include "../layers/activations.h"
-#include "../cost/costfunctions.h"
+#include "common.h"
+#include "global.h"
+#include "matrix_operator.h"
+#include "matrix_operator_gpu.h"
+#include "kernel_utils.h"
+#include "activations.h"
+#include "costfunctions.h"
 
 
 int main(int argc, char **argv)
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
 
 
-  FILE *fp_ew2d = fopen("../analysis/fp_ew2d.txt", "w");
+  FILE *fp_ew2d = fopen("analysis/fp_ew2d.txt", "w");
   fprintf(fp_ew2d,"N_ROWS\tN_COLS\tMRTIME_onDEV\tMRTIME_HOST\tCT_DtH\tCT_HtD\n");
 
 
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 
 
   // scale analysis
-  FILE *fp_ew2d_an = fopen("../analysis/fp_ew2d_analysis.txt", "w");
+  FILE *fp_ew2d_an = fopen("analysis/fp_ew2d_analysis.txt", "w");
   fprintf(fp_ew2d_an,"N_ROWS\tN_COLS\tMRTIME_onDEV_T1\tMRTIME_HOST\tCT_DtH\tMRTIME_onDEV_Tp\n");
 
 

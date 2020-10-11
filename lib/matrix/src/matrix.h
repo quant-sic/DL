@@ -14,13 +14,13 @@
 #include <iostream>
 #include <memory>
 
-// // pybind11 headers + namespace
+// own headers
+#include "common.h"
+
+// pybind11 headers + namespace
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 namespace py = pybind11;
-
-// own headers
-#include "../../misc/common.h"
 
 //_________________________________________________________________________________________________
 // helper functions

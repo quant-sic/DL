@@ -17,8 +17,8 @@
 #include <sstream>
 
 // own c++ headers
-#include "../neural_network/matrix.h"
-#include "../neural_network/neural_network.h"
+#include "matrix.h"
+#include "neural_network.h"
 
 //_______________________________________________________________________________________________
 // functions contained in this module

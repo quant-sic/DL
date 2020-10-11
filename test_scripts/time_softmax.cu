@@ -1,6 +1,6 @@
-#include "../layers/activations.h"
-#include "../cost/costfunctions.h"
-#include "../common.h"
+#include "activations.h"
+#include "costfunctions.h"
+#include "common.h"
 #include <float.h>
 #include <math.h>
 

@@ -14,9 +14,9 @@
 
 // own c++ headers
 #include "test_network.h"
-#include "../run_scripts/run_network.h"
-#include "../neural_network/mnist_reader.h"
-#include "../neural_network/neural_network.h"
+#include "run_network.h"
+#include "mnist_reader.h"
+#include "neural_network.h"
 
 // main function to run the network test
 int main(int argc, char** argv) {

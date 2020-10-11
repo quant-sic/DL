@@ -7,10 +7,10 @@
 #include <string.h>
 #include <math.h>
 #include <sys/time.h>
-#include "../matrix_operations/test_matrix_operator.h"
+#include "test_matrix_operator.h"
 #include <assert.h>
 #include <cblas.h>
-#include "../common.h"
+#include "common.h"
 #include <float.h>
 
 

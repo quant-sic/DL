@@ -1,15 +1,15 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.13)
 
 project(DL
     DESCRIPTION "DL Algorithms Suite"
+    VERSION 1.0
     LANGUAGES CXX C
     )
 
 
 find_package(PythonLibs 2.7 REQUIRED)
 find_package(BLAS REQUIRED)
-message(${BLAS_LIBRARIES})
-find_package(CUDA)
+find_package(CUDA REQUIRED)
 
 # # Pass options to NVCC
 set(CUDA_NVCC_FLAGS
@@ -35,7 +35,10 @@ add_subdirectory(lib/matrix)
 add_subdirectory(lib/layers)
 add_subdirectory(lib/cost)
 add_subdirectory(lib/matrix_operations)
+add_subdirectory(lib/neural_network)
+add_subdirectory(lib/utils)
 
 
 add_subdirectory(test_scripts)
+add_subdirectory(run_scripts)
 

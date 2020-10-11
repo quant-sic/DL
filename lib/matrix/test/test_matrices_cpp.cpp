@@ -7,9 +7,9 @@
   CAUTION : 
 */
 
-#include "../common.h"
+#include "common.h"
 #include "test_matrices_cpp.h"
-#include "../matrix_operations/test_matrix_operator.h"
+#include "test_matrix_operator.h"
 
 //_______________________________________________________________________________________________
 // comapare two matrices error

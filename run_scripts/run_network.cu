@@ -10,10 +10,10 @@
 #include <iostream>
 
 // c++ own headers
-#include "../timer.h"
-#include "../neural_network/mnist_reader.h"
-#include "../neural_network/neural_network.h"
-#include "../test_scripts/test_network.h"
+#include "timer.h"
+#include "mnist_reader.h"
+#include "neural_network.h"
+#include "test_network.h"
 
 //__________________________________________________________________________________________________
 // TRAINING THE NEURAL NETWORK
@@ -35,16 +35,16 @@ int main(int argc, char** argv) {
     std::cout << "Should the Network be trained on letters or digits? (letters/digits)   : ";
     std::cin >> flag_digits_letters;
     if (flag_digits_letters == "letters") {
-      path_train_data  = "../data/training/emnist-letters-train-images-idx3-ubyte";
-      path_train_label = "../data/training/emnist-letters-train-labels-idx1-ubyte";
-      path_test_data   = "../data/testing/emnist-letters-test-images-idx3-ubyte";
-      path_test_label  = "../data/testing/emnist-letters-test-labels-idx1-ubyte";
+      path_train_data  = "data/training/emnist-letters-train-images-idx3-ubyte";
+      path_train_label = "data/training/emnist-letters-train-labels-idx1-ubyte";
+      path_test_data   = "data/testing/emnist-letters-test-images-idx3-ubyte";
+      path_test_label  = "data/testing/emnist-letters-test-labels-idx1-ubyte";
       break;
     } else if (flag_digits_letters == "digits") {
-      path_train_data  = "../data/training/train-images-idx3-ubyte";
-      path_train_label = "../data/training/train-labels-idx1-ubyte";
-      path_test_data   = "../data/testing/t10k-images-idx3-ubyte";
-      path_test_label  = "../data/testing/t10k-labels-idx1-ubyte";
+      path_train_data  = "data/training/train-images-idx3-ubyte";
+      path_train_label = "data/training/train-labels-idx1-ubyte";
+      path_test_data   = "data/testing/t10k-images-idx3-ubyte";
+      path_test_label  = "data/testing/t10k-labels-idx1-ubyte";
       break;
     } else
       std::cout << "The choosen option is not available. Try again." << std::endl;

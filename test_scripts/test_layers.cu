@@ -12,11 +12,11 @@
 
 // own cpp headers
 #include "test_layers.h"
-#include "../layers/layers.h"
-#include "../layers/sigmoid.h"
-#include "../layers/softmax.h"
-#include "../layers/relu.h"
-#include "../layers/linear.h"
+#include "layers.h"
+#include "sigmoid.h"
+#include "softmax.h"
+#include "relu.h"
+#include "linear.h"
 
 int main(int agrc, char** argv) {
 

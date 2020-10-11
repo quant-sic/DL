@@ -9,9 +9,9 @@
 
 #include <sstream>
 
-#include "../cost/costs.h"
+#include "costs.h"
 #include "neural_network.h"
-#include "../layers/layers.h"
+#include "layers.h"
 
 
 //_______________________________________________________________________________________________

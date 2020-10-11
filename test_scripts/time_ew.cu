@@ -9,13 +9,13 @@
 #include <float.h>
 
 // own c headers
-#include "../common.h"
-#include "../global.h"
-#include "../matrix_operations/matrix_operator.h"
-#include "../matrix_operations/matrix_operator_gpu.h"
-#include "../matrix_operations/kernel_utils.h"
-#include "../layers/activations.h"
-#include "../cost/costfunctions.h"
+#include "common.h"
+#include "global.h"
+#include "matrix_operator.h"
+#include "matrix_operator_gpu.h"
+#include "kernel_utils.h"
+#include "activations.h"
+#include "costfunctions.h"
 
 
 int main(int argc, char **argv)
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
   double *res1,*res2,*lhs,*rhs;
   double *dev_res1,*dev_lhs,*dev_rhs;
 
-  FILE *fp_c = fopen("../analysis/copying.txt", "w");
+  FILE *fp_c = fopen("analysis/copying.txt", "w");
   fprintf(fp_c,"N\tTimeHtD\tTimeDtH\n");
 
   for(size=1;size<=(1<<22);size<<=1){
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
   for(int i =0;i<size;i++) rhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
 
 
-  FILE *fp_pw = fopen("../analysis/pointwise.txt", "w");
+  FILE *fp_pw = fopen("analysis/pointwise.txt", "w");
   fprintf(fp_pw,"N\tTIME_onDEV\tTIME_HOST\n");
 
   for(size=1;size<=(1<<22);size<<=1){
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 
 
   // pw scale analysis
-  FILE *fp_pw_an = fopen("../analysis/pointwise_analysis.txt", "w");
+  FILE *fp_pw_an = fopen("analysis/pointwise_analysis.txt", "w");
   fprintf(fp_pw_an,"N\tTIME_onDEV_T1\tTIME_HOST\tTIME_onDEV_Tp\n");
 
   for(size=1;size<=(1<<22);size<<=1){
@@ -175,7 +175,7 @@ int main(int argc, char **argv)
   fclose (fp_pw_an);
 
 
-  FILE *fp_cpw = fopen("../analysis/comb_pointwise.txt", "w");
+  FILE *fp_cpw = fopen("analysis/comb_pointwise.txt", "w");
   fprintf(fp_cpw,"N\tOP_P_T\tT_B\tTIME_DEVICE\tTIME_HOST\tTIME_onDEV\n");
 
   for(size=1;size<=(1<<22);size<<=1){
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
   fclose (fp_cpw);
 
   // measure times for true efficiency true speed up, speed up, efficiency and scale up
-  FILE *fp_cpw_an = fopen("../analysis/comb_pointwise_analysis.txt", "w");
+  FILE *fp_cpw_an = fopen("analysis/comb_pointwise_analysis.txt", "w");
   fprintf(fp_cpw_an,"N\tOP_P_T\tT_B\tTIME_DEVICE\tTIME_HOST\tTIME_onDEV\n");
 
     // for n=size

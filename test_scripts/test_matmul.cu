@@ -8,11 +8,11 @@
 #include <float.h>
 
 // own c headers
-#include "../common.h"
-#include "../global.h"
-#include "../matrix_operations/matrix_operator.h"
-#include "../matrix_operations/matrix_operator_gpu.h"
-#include "../matrix_operations/test_matrix_operator.h"
+#include "common.h"
+#include "global.h"
+#include "matrix_operator.h"
+#include "matrix_operator_gpu.h"
+#include "test_matrix_operator.h"
 
 // define thresholds
 #define MATMUL_COMP(K) (sqrt(2*K)*DBL_EPSILON)
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
 
   srand(seconds());   // Initialization, should only be called once.
-  double *A,*B,*B_T,*B_T_T,*C1,*C2,*C3,*C4,*C5,*C6,*C7,*C8,*C9,*A_T;
+  double *A,*B,*B_T,*B_T_T,*C1,*C2,*C3,*C4,*C5,*C6,*C7,*C8,*A_T;
   double *A2,*B2,*A3,*B3,*As,*Bs,*A2s,*B2s,*one_m;
   int same_result;
 
@@ -75,7 +75,6 @@ int main(int argc, char **argv)
         C6 = (double *)malloc(C_nelem*sizeof(double));
         C7 = (double *)malloc(C_nelem*sizeof(double));
         C8 = (double *)malloc(C_nelem*sizeof(double));
-        C9 = (double *)malloc(C_nelem*sizeof(double));
 
 
         create_random_matrix(A,A_nelem,0,5);
@@ -225,7 +224,6 @@ int main(int argc, char **argv)
 
           C5 = (double *)malloc(K*K*sizeof(double));
           C6 = (double *)malloc(K*K*sizeof(double));
-          C9 = (double *)malloc(K*K*sizeof(double));
 
           mat_transpose_gpu(B, B_T, K, N,threads_block);
           matMul_gpu2(A_T, B_T,K,K,M,C5,threads_block);
