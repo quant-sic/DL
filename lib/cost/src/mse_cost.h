@@ -5,6 +5,7 @@
 #include "reduce.h"
 #include "costs.h"
 #include "pw_comp.h"
+#include "matrix.h"
 
 
 //_______________________________________________________________________________________________

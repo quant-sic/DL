@@ -8,6 +8,8 @@ cuda_add_library( matrix_operations_src
     src/matrix_operator.h
     src/reduce.cu
     src/reduce.h
+    src/mat_mul.cu
+    src/mat_mul.h
     src/pw_comp.h
     src/pw2d_comp.h
     src/common_utils.h

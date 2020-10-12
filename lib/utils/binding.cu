@@ -11,6 +11,7 @@
 #include "softmax.h"
 #include "mnist_reader.h"
 #include "mse_cost.h"
+#include "cce_cost.h"
 
 // set up py namespace
 namespace py = pybind11;

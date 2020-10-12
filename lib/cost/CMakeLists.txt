@@ -6,6 +6,8 @@ cuda_add_library(lib_costs_src
     src/costs.h
     src/mse_cost.h
     src/mse_cost.cu
+    src/cce_cost.cu
+    src/cce_cost.h
     )
 
 

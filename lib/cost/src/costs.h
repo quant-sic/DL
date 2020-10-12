@@ -45,25 +45,6 @@ public :
 
 //_______________________________________________________________________________________________
 // categorical cross entropy cost
-class cce_cost : public costs
-{
-public :
-  // constructor / destructor
-  cce_cost (void) {this->_type = CCE;};
-  ~cce_cost(void) {};
-
-  // functions to calculate
-  double cost (matrix predict, matrix target, bool flag_host);
-  matrix dcost(matrix predict, matrix target, matrix dy, bool flag_host);
-
-  // operator overlaoding
-  //friend std::ostream& operator <<(std::ostream& out, const cce_cost& cce);
-  void print_out(std::ostream& out) const { out << "cce"; };
-};
-
-
-//_______________________________________________________________________________________________
-// categorical cross entropy cost
 class cce_soft_cost : public costs
 {
 public :

@@ -1,6 +1,8 @@
 #ifndef _PW_COMP_H_
 #define _PW_COMP_H_
 
+#include "global.h"
+
 // applies a pointwise function and stores the result in another array
 template<class real_type,typename Functor>
 __global__ void apply_pointwise_kernel(const real_type *dev_in, real_type *dev_out, int size, Functor dev_functor)
