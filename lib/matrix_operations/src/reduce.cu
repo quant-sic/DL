@@ -154,3 +154,4 @@ real_type get_max_onDev(const real_type *dev_in,int size){
 }
 template float get_max_onDev(const float *dev_in,int size);
 template double get_max_onDev(const double *dev_in,int size);
+

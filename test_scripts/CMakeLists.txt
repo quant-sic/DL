@@ -5,7 +5,7 @@
 # time and test scripts for algorithms -> replace these with something more clever
 
 cuda_add_executable(test_activations test_activations.cu)
-target_link_libraries(test_activations PRIVATE activations_src costs_src misc_src test_matrix_operations_src)
+target_link_libraries(test_activations PRIVATE activations_src lib_costs_src misc_src test_matrix_operations_src)
 
 cuda_add_executable(test_CBlas test_CBlas.c)
 target_link_libraries(test_CBlas PRIVATE misc_src test_matrix_operations_src -lcblas)
@@ -14,10 +14,10 @@ cuda_add_executable(run_test_matrix_operator run_test_matrix_operator.cu)
 target_link_libraries(run_test_matrix_operator PRIVATE misc_src test_matrix_operations_src matrix_operations_src)
 
 cuda_add_executable(test_costs test_costs.cu)
-target_link_libraries(test_costs PRIVATE costs_src misc_src activations_src matrix_operations_src test_matrix_operations_src)
+target_link_libraries(test_costs PRIVATE lib_costs_src misc_src activations_src matrix_operations_src test_matrix_operations_src)
 
 cuda_add_executable(test_ew test_ew.cu)
-target_link_libraries(test_ew PRIVATE costs_src misc_src activations_src matrix_operations_src test_matrix_operations_src)
+target_link_libraries(test_ew PRIVATE lib_costs_src misc_src activations_src matrix_operations_src test_matrix_operations_src)
 
 cuda_add_executable(test_ew2d test_ew2d.cu)
 target_link_libraries(test_ew2d PRIVATE misc_src matrix_operations_src test_matrix_operations_src)
@@ -26,19 +26,19 @@ cuda_add_executable(test_matmul test_matmul.cu)
 target_link_libraries(test_matmul PRIVATE misc_src matrix_operations_src test_matrix_operations_src)
 
 cuda_add_executable(time_ew time_ew.cu)
-target_link_libraries(time_ew PRIVATE costs_src misc_src activations_src matrix_operations_src test_matrix_operations_src)
+target_link_libraries(time_ew PRIVATE lib_costs_src misc_src activations_src matrix_operations_src test_matrix_operations_src)
 
 cuda_add_executable(time_ew2d time_ew2d.cu)
-target_link_libraries(time_ew2d PRIVATE costs_src misc_src activations_src matrix_operations_src test_matrix_operations_src)
+target_link_libraries(time_ew2d PRIVATE lib_costs_src misc_src activations_src matrix_operations_src test_matrix_operations_src)
 
 cuda_add_executable(time_matmul time_matmul.cu)
 target_link_libraries(time_matmul PRIVATE misc_src matrix_operations_src test_matrix_operations_src)
 
 cuda_add_executable(time_reduction time_reduction.cu)
-target_link_libraries(time_reduction PRIVATE costs_src misc_src activations_src matrix_operations_src test_matrix_operations_src)
+target_link_libraries(time_reduction PRIVATE lib_costs_src misc_src activations_src matrix_operations_src test_matrix_operations_src)
 
 cuda_add_executable(time_softmax time_softmax.cu)
-target_link_libraries(time_softmax PRIVATE costs_src misc_src activations_src)
+target_link_libraries(time_softmax PRIVATE lib_costs_src misc_src activations_src)
 
 # __________________________________________________________________________________________________________________________________
 

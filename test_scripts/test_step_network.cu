@@ -6,6 +6,7 @@
 
 #include "neural_network.h"
 #include "test_network.h"
+#include "mse_cost.h"
 
 // main fucntion to run step by step
 int main(int argc, char** argv) {
@@ -34,7 +35,7 @@ int main(int argc, char** argv) {
   nn.add_layer(new sigmoid("siggi_1"));
 
   // adding the cost
-  nn.set_cost(new rms_cost());
+  nn.set_cost(new mse_cost());
   
   // move matrices to host and device
   if (!flag_host)

@@ -3,7 +3,7 @@ cuda_add_library(lib_binding SHARED
     )
 
 #define include path    
-target_link_libraries(lib_binding PRIVATE matrix_src costs_src lib_layers_src lib_neural_network_src lib_neural_network_test lib_mnist_reader)
+target_link_libraries(lib_binding PRIVATE matrix_src lib_costs_src lib_layers_src lib_neural_network_src lib_neural_network_test lib_mnist_reader)
 set_target_properties(lib_binding PROPERTIES PREFIX "")
 
 

@@ -6,7 +6,7 @@ cuda_add_library(lib_neural_network_src
 
 #define include path    
 target_include_directories(lib_neural_network_src PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(lib_neural_network_src PUBLIC costs_src lib_neural_network_test lib_layers_src )
+target_link_libraries(lib_neural_network_src PUBLIC lib_costs_src lib_neural_network_test lib_layers_src )
 
 
 cuda_add_library(lib_neural_network_test

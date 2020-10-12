@@ -45,4 +45,28 @@ void hadamard_func_rhs(const real_type *lhs, real_type *rhs, real_type *res, int
         res[i] = lhs[i] * functor(rhs[i]);
 }
 
+template <class real_type,typename Functor>
+void combine_pointwise(const real_type* in,const real_type* target,real_type* delta,int size,Functor functor){
+    for(int i=0;i<size;i++) delta[i]=functor(in[i],target[i]);
+}
+
+
+// combines two arrays pontwise
+template <class real_type,typename Functor>
+__global__ void comb_pointwise_1d_kernel(real_type* res,const real_type* lhs,const real_type* rhs,int     size,Functor dev_functor){
+    // traverse array elements
+    for (int idx=blockIdx.x*blockDim.x + threadIdx.x; (idx < size); idx += blockDim.x*gridDim.x){
+        // apply function
+        res[idx]=dev_functor(lhs[idx],rhs[idx]);
+    }
+}
+
+template <class real_type,typename Functor>
+void combine_pointwise_onDev(const real_type* dev_in,const real_type* dev_target,real_type* dev_delta,int size,Functor dev_functor){
+
+    comb_pointwise_1d_kernel<real_type><<<pointwise_grid(size),get_pointwise_block()>>>(dev_delta,dev_in, dev_target,size, dev_functor);
+    CHECK(cudaDeviceSynchronize());
+    CHECK(cudaGetLastError());
+}
+
 #endif // _PW_COMP_H_

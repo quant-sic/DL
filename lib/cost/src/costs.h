@@ -18,7 +18,7 @@
 #include "costfunctions.h"
 
 // cost type enum
-enum cost_names {RMS, CCE, CCE_SOFT};
+enum cost_names {MSE, CCE, CCE_SOFT};
 
 //_______________________________________________________________________________________________
 // class for the bce_cost
@@ -61,23 +61,6 @@ public :
   void print_out(std::ostream& out) const { out << "cce"; };
 };
 
-//_______________________________________________________________________________________________
-// categorical cross entropy cost
-class rms_cost : public costs
-{
-public :
-  // constructor
-  rms_cost (void) {this->_type = RMS;};
-  ~rms_cost(void) {};
-
-  // functions to calculate
-  double cost (matrix predict, matrix target, bool flag_host);
-  matrix dcost(matrix predict, matrix target, matrix dy, bool flag_host);
-
-  // operator overloading
-  //friend std::ostream& operator <<(std::ostream& out, const rms_cost& rms);
-  void print_out(std::ostream& out) const { out << "rms"; };
-};
 
 //_______________________________________________________________________________________________
 // categorical cross entropy cost

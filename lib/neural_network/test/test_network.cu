@@ -9,6 +9,7 @@
 
 #include "timer.h"
 #include "test_network.h"
+#include "mse_cost.h"
 
 //_______________________________________________________________________________________________
 // create a neural network from naming strings and sizes for the layers
@@ -32,7 +33,7 @@ neural_network create_neural_network(const std::vector <std::string>& v_layers,
     cce_cost* cce = new cce_cost();
     nn.set_cost(cce);
   } else if (cost_name == "rms") {
-    rms_cost* rms = new rms_cost();
+    mse_cost* rms = new mse_cost();
     nn.set_cost(rms);
   } else if (cost_name == "cce_soft") {
     cce_soft_cost* cce_soft = new cce_soft_cost();
