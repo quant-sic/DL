@@ -20,6 +20,7 @@
 #include <math.h>
 
 #include "mse_cost.h"
+#include "cce_cost.h"
 
 // define thresholds
 #define COST_THRESHOLD(size) (sqrt(size)*DBL_EPSILON)
@@ -91,54 +92,54 @@ int main(int argc, char **argv)
   CHECK(cudaMalloc((void**)&dev_target, size*sizeof(double)));
 
   // check if all costs are positive
-  // int all_positive=1;
-  // for(int i=0;i<10;i++){
+  int all_positive=1;
+  for(int i=0;i<10;i++){
 
-  //   create_random_matrix(act_out,size,0,1);
-  //   create_random_matrix(target,size,0,1);
+    create_random_matrix(act_out,size,0,1);
+    create_random_matrix(target,size,0,1);
 
-  //   double mse_value=mse(act_out,target,size,batchsize);
+    double mse_value=mse<double>(act_out,target,size);
 
-  //   double cce_value=categorical_crossentropy(act_out,target,size,batchsize);
+    double cce_value=cce<double>(act_out,target,size);
 
-  //   double cce_soft_value=cce_softmax_cpu(act_out,target,size,batchsize);
+    double cce_soft_value=cce_softmax_cpu(act_out,target,size,batchsize);
 
-  //   all_positive*=(mse_value>=0 &&cce_value>=0  &&cce_soft_value>=0 );
-  // }
-  // printf("All Cost Values positive %d\n",all_positive);
-
-
-
-  // // check if all costs have a minimum at target
-  // create_random_matrix(target,size,0.3,0.6);
-
-  // double mse_min_value=mse(target,target,size,batchsize);
-
-  // double cce_min_value=categorical_crossentropy(target,target,size,batchsize);
-
-  // double cce_soft_min_value=cce_softmax_cpu(target,target,size,batchsize);
-
-  // int all_min_at_target=1;
-
-  // for(int i=0;i<10;i++){
-
-  //   // create delta
-  //   double *delta=(double *)malloc(size*sizeof(double));
-  //   create_random_matrix(delta,size,0.01,.1);
-
-  //   // add onto target
-  //   matrix_add_cpu(act_out, target, delta,  size);
+    all_positive*=(mse_value>=0 &&cce_value>=0  &&cce_soft_value>=0 );
+  }
+  printf("All Cost Values positive %d\n",all_positive);
 
 
-  //   double mse_value=mse(act_out,target,size,batchsize);
 
-  //   double cce_value=categorical_crossentropy(act_out,target,size,batchsize);
+  // check if all costs have a minimum at target
+  create_random_matrix(target,size,0.3,0.6);
 
-  //   double cce_soft_value=cce_softmax_cpu(act_out,target,size,batchsize);
+  double mse_min_value=mse<double>(target,target,size);
 
-  //   all_min_at_target*=(mse_value>mse_min_value &&cce_value>cce_min_value  &&cce_soft_value>=cce_soft_min_value);
-  // }
-  // printf("All Cost Values Minimum at Target %d\n",all_positive);
+  double cce_min_value=cce<double>(target,target,size);
+
+  double cce_soft_min_value=cce_softmax_cpu(target,target,size,batchsize);
+
+  int all_min_at_target=1;
+
+  for(int i=0;i<10;i++){
+
+    // create delta
+    double *delta=(double *)malloc(size*sizeof(double));
+    create_random_matrix(delta,size,0.01,.1);
+
+    // add onto target
+    matrix_add_cpu(act_out, target, delta,  size);
+
+
+    double mse_value=mse<double>(act_out,target,size);
+
+    double cce_value=cce<double>(act_out,target,size);
+
+    double cce_soft_value=cce_softmax_cpu(act_out,target,size,batchsize);
+
+    all_min_at_target*=(mse_value>mse_min_value &&cce_value>cce_min_value  &&cce_soft_value>=cce_soft_min_value);
+  }
+  printf("All Cost Values Minimum at Target %d\n",all_positive);
 
 
   create_random_matrix(act_in,size,0,1);
@@ -155,9 +156,9 @@ int main(int argc, char **argv)
   double mse_value_gpu=mse_onDev<double>(dev_act_out,dev_target,size);
   printf("MSE same result on Host and Device %d\n",double_equal(&mse_value,&mse_value_gpu,1,COST_THRESHOLD(size)));
 
-  // double cce_value=categorical_crossentropy(act_out,target,size,batchsize);
-  // double cce_value_gpu=categorical_crossentropy_onDev(dev_act_out,dev_target,size,batchsize);
-  // printf("CCE same result on Host and Device %d\n",double_equal(&cce_value,&cce_value_gpu,1,COST_THRESHOLD(size)));
+  double cce_value=cce<double>(act_out,target,size);
+  double cce_value_gpu=cce_onDev<double>(dev_act_out,dev_target,size);
+  printf("CCE same result on Host and Device %d\n",double_equal(&cce_value,&cce_value_gpu,1,COST_THRESHOLD(size)));
 
 // check if backpropagation yields the same result on host and device
   d_mse<double>(act_out, target, delta_mse, size);
@@ -166,10 +167,10 @@ int main(int argc, char **argv)
   printf("D_MSE same result on Host and Device %d\n",double_equal(tmp,delta_mse,size,D_COST_THRESHOLD(size)));
 
 
-  // d_categorical_crossentropy(act_out, target, delta_cce, size);
-  // d_categorical_crossentropy_onDev(dev_act_out,dev_target, dev_delta_cce, size);
-  // copy_device_to_host_double(dev_delta_cce, tmp, size);
-  // printf("D_CCE same result on Host and Device %d\n",double_equal(tmp,delta_cce,size,D_COST_THRESHOLD(size)));
+  d_cce<double>(act_out, target, delta_cce, size);
+  d_cce_onDev<double>(dev_act_out,dev_target, dev_delta_cce, size);
+  copy_device_to_host_double(dev_delta_cce, tmp, size);
+  printf("D_CCE same result on Host and Device %d\n",double_equal(tmp,delta_cce,size,D_COST_THRESHOLD(size)));
 
 
 // ___________________________________________________________________________________
@@ -184,7 +185,7 @@ int main(int argc, char **argv)
 //   }
 
 //   softmax_activation_cpu(act_in,act_out_soft,batchsize,neurons_out);
-//   d_categorical_crossentropy(act_out_soft, target, delta_cce, size);
+//   d_cce(act_out_soft, target, delta_cce, size);
 //   softmax_activation_backprop_cpu(delta_cce,act_in,tmp2,neurons_out,batchsize);
 //   d_cce_softmax_cpu(act_in,target,tmp,size,batchsize);
 
@@ -193,7 +194,7 @@ int main(int argc, char **argv)
 
 //   copy_host_to_device_double(target,dev_target,size);
 //   softmax_activation_onDev(dev_act_in,dev_act_out_soft,batchsize,neurons_out);
-//   d_categorical_crossentropy_onDev(dev_act_out_soft, dev_target, dev_delta_cce, size);
+//   d_cce_onDev(dev_act_out_soft, dev_target, dev_delta_cce, size);
 //   softmax_activation_backprop_onDev(dev_delta_cce,dev_act_in,dev_tmp2,neurons_out,batchsize);
 //   d_cce_softmax_onDev(dev_act_in,dev_target,dev_tmp,size,batchsize);
 
