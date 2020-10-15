@@ -4,3 +4,4 @@ build/*
 .vscode
 analysis/*
 .ipynb_checkpoints
+__pycache__
