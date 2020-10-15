@@ -4,7 +4,7 @@ import numpy as np
 import os
 import sys
 
-mnist_data_location=os.getcwd()+'/mnist.pkl.gz';
+mnist_data_location=os.getcwd()+'../data/mnist.pkl.gz';
 
 def load_data():
 
