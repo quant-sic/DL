@@ -2,3 +2,5 @@ a.out
 .remote-sync.json
 build/*
 .vscode
+analysis/*
+.ipynb_checkpoints
