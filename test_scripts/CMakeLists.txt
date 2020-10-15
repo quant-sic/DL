@@ -82,3 +82,6 @@ target_link_libraries(time_network PRIVATE lib_neural_network_test lib_neural_ne
 cuda_add_executable(test_functor_cuda test_functor_cuda.cu)
 target_link_libraries(test_functor_cuda PRIVATE misc_src test_matrix_operations_src)
 
+cuda_add_executable(test_object_kernel test_object_kernel.cu)
+target_link_libraries(test_object_kernel PRIVATE misc_src matrix_src test_matrix_operations_src matrix_operations_src activations_src)
+

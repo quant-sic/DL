@@ -2,6 +2,8 @@
 #define _PW_COMP_H_
 
 #include "global.h"
+#include "common.h"
+
 
 // applies a pointwise function and stores the result in another array
 template<class real_type,typename Functor>
