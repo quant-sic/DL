@@ -78,14 +78,14 @@ void relu_activation_backprop_onDev(const real_type *dev_da, real_type *dev_z, r
 template <class real_type>
 void relu_activation_cpu(const real_type *in, real_type *out, int size)
 {
-  apply_pointwise<real_type>(in, out, size, relu_functor<real_type>());
+  apply_pointwise_cpu<real_type>(in, out, size, relu_functor<real_type>());
 }
 
 // d_relu activation on host
 template <class real_type>
 void d_relu_activation_cpu(const real_type *in, real_type *delta, int size)
 {
-  apply_pointwise<real_type>(in, delta, size, d_relu_functor<real_type>());
+  apply_pointwise_cpu<real_type>(in, delta, size, d_relu_functor<real_type>());
 }
 
 // relu activation backprop on host

@@ -12,7 +12,6 @@
 
 #include <string>
 #include "matrix.h"
-#include "activations.h"
 
 //enum Layers
 //_________________________________________________________________________________________________

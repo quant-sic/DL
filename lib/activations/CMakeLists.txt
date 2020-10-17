@@ -1,7 +1,5 @@
 cuda_add_library(activations_src
     
-    src/activations.cu
-    src/activations.h
     src/relu.cu
     src/relu.h
     src/sigmoid.cu

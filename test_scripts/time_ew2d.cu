@@ -11,11 +11,8 @@
 // own c headers
 #include "common.h"
 #include "global.h"
-#include "matrix_operator.h"
-#include "matrix_operator_gpu.h"
-#include "kernel_utils.h"
-#include "activations.h"
-#include "costfunctions.h"
+#include "pw2d_comp.h"
+#include "common_utils.h"
 
 
 int main(int argc, char **argv)
@@ -71,12 +68,12 @@ int main(int argc, char **argv)
 
       for (int i=0;i<5;i++){
         start=seconds();
-        add_along_axis_onDev(dev_mat_in,dev_vec,dev_mat_out, rows,cols, 0, cols);
+        func_along_axis_onDev<double>(add_functor<double>(),dev_mat_in,dev_vec,dev_mat_out, rows,cols, 0, cols);
         t=seconds()-start;
         t1=t<t1?t:t1;
 
         start=seconds();
-        add_along_axis_cpu(mat_in,vec,mat_out, rows,cols, 0, cols);
+        func_along_axis_cpu<double>(add_functor<double>(),mat_in,vec,mat_out, rows,cols, 0, cols);
         t=seconds()-start;
         t2=t<t2?t:t2;
 
@@ -104,77 +101,4 @@ int main(int argc, char **argv)
   }
   fclose (fp_ew2d);
 
-
-  // scale analysis
-  FILE *fp_ew2d_an = fopen("analysis/fp_ew2d_analysis.txt", "w");
-  fprintf(fp_ew2d_an,"N_ROWS\tN_COLS\tMRTIME_onDEV_T1\tMRTIME_HOST\tCT_DtH\tMRTIME_onDEV_Tp\n");
-
-
-
-  for(int cols=(1<<7);cols<=(1<<11);cols<<=2){
-    for(int rows=(1<<7);rows<=(1<<11);rows<<=2){
-
-      t1=t2=DBL_MAX;
-
-      int size_mat_in=cols*rows;
-      int size_mat_out=size_mat_in;
-      mat_in=(double *)malloc(size_mat_in*sizeof(double));
-      mat_out=(double *)malloc(size_mat_out*sizeof(double));
-      vec=(double *)malloc(cols*sizeof(double));
-
-      for(int i =0;i<size_mat_in;i++) mat_in[i]=((double)rand()/(double)RAND_MAX);
-      for(int i =0;i<cols;i++) vec[i]=((double)rand()/(double)RAND_MAX);
-
-      CHECK(cudaMalloc((void**)&dev_mat_in, size_mat_in*sizeof(double)));
-      CHECK(cudaMalloc((void**)&dev_mat_out, size_mat_out*sizeof(double)));
-      CHECK(cudaMalloc((void**)&dev_vec, cols*sizeof(double)));
-
-      copy_host_to_device_double(mat_in,dev_mat_in,size_mat_in);
-      copy_host_to_device_double(vec,dev_vec,cols);
-
-      for (int i=0;i<3;i++){
-
-        start=seconds();
-        dim3 grid(1,1);
-        dim3 block(1,1);
-        func_along_axis_y_kernel<<<grid,block>>>(dev_mat_in,dev_vec,dev_mat_out,rows,cols,ADD);
-        CHECK(cudaDeviceSynchronize());
-        CHECK(cudaGetLastError());
-        t=seconds()-start;
-        t1=t<t1?t:t1;
-
-        start=seconds();
-        add_along_axis_cpu(mat_in,vec,mat_out, rows,cols, 0, cols);
-        t=seconds()-start;
-        t2=t<t2?t:t2;
-      }
-
-      for(int n_threads=1;n_threads<=(1<<13);n_threads<<=1){
-
-        t3=DBL_MAX;
-        
-        int blockdim=sqrt(n_threads)<=32? sqrt(n_threads):32;
-        dim3 block_2(blockdim,blockdim);
-        dim3 grid_2((sqrt(n_threads)+(block_2.x)-1)/(block_2.x),(sqrt(n_threads)+(block_2.y)-1)/(block_2.y));
-
-        for (int i=0;i<3;i++){
-          start=seconds();
-          func_along_axis_y_kernel<<<grid_2,block_2>>>(dev_mat_in,dev_vec,dev_mat_out,rows,cols,ADD);
-          CHECK(cudaDeviceSynchronize());
-          CHECK(cudaGetLastError());
-          t=seconds()-start;
-          t3=t<t3?t:t3;
-        }
-        fprintf(fp_ew2d_an,"%d\t%d\t%d\t%e\t%e\t%e\n",rows,cols,grid_2.x*grid_2.y*n_threads,t1,t2,t3);
-      }
-
-      CHECK(cudaFree(dev_mat_in));
-      CHECK(cudaFree(dev_mat_out));
-      CHECK(cudaFree(dev_vec));
-      free(mat_in);
-      free(mat_out);
-      free(vec);
-    }
-  }
-  fclose (fp_ew2d_an);
 }

@@ -54,7 +54,7 @@ real_type cce(const real_type *in,real_type *target,int size){
 
 template<typename real_type>
 void d_cce(const real_type *in, real_type *target, real_type *delta, int size){
-  combine_pointwise<real_type>(in,target,delta,size,d_cce_functor<real_type>());
+  combine_pointwise_cpu<real_type>(in,target,delta,size,d_cce_functor<real_type>());
 }
 
 // // on device

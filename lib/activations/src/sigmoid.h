@@ -73,12 +73,12 @@ void sigmoid_activation_backprop_onDev(const real_type *dev_da,real_type *dev_z,
 
 template <class real_type>
 void sigmoid_activation_cpu(const real_type *in,real_type *out,int size){
-  apply_pointwise<real_type>(in, out, size, sigmoid_functor<real_type>());
+  apply_pointwise_cpu<real_type>(in, out, size, sigmoid_functor<real_type>());
 }
 
 template <class real_type>
 void d_sigmoid_activation_cpu(const real_type *in,real_type *delta,int size){
-  apply_pointwise<real_type>(in, delta, size, d_sigmoid_functor<real_type>());
+  apply_pointwise_cpu<real_type>(in, delta, size, d_sigmoid_functor<real_type>());
 }
 
 template <class real_type>

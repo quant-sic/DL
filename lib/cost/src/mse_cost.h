@@ -46,7 +46,7 @@ real_type mse(const real_type *in,real_type *target,int size){
 
 template<typename real_type>
 void d_mse(const real_type *in, real_type *target, real_type *delta, int size){
-  combine_pointwise<real_type>(in,target,delta,size,d_mse_functor<real_type>());
+  combine_pointwise_cpu<real_type>(in,target,delta,size,d_mse_functor<real_type>());
 }
 
 // // on device

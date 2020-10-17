@@ -16,7 +16,7 @@ struct tanh_functor {
 
 template<class real_type>
 void tanh_activation_cpu(const real_type *in, real_type *out, int size){
-    apply_pointwise(in,out,size,tanh_functor<real_type>());
+    apply_pointwise_cpu(in,out,size,tanh_functor<real_type>());
 }
 
 

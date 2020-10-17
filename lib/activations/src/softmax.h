@@ -17,6 +17,7 @@
 #include "pw2d_comp.h"
 #include "reduce.h"
 #include "common_utils.h"
+#include "mat_mul.h"
 
 // define algorithm thresholds
 #define SOFTMAX_THRESHOLD (1<<3)
@@ -55,7 +56,7 @@ void softmax_activation_cpu(const real_type *in,real_type *out,int batchsize,int
   real_type max = get_max<real_type>(in, batchsize*neurons_out);
 
   // calculate exponentials and normalisation
-  apply_pointwise<real_type>(in,out,batchsize*neurons_out,exp_sub_val_functor<real_type>(max));
+  apply_pointwise_cpu<real_type>(in,out,batchsize*neurons_out,exp_sub_val_functor<real_type>(max));
 
 
   real_type *sum=(real_type *)malloc(batchsize*sizeof(real_type));
@@ -93,7 +94,7 @@ void softmax_activation_backprop_cpu(const real_type *da,real_type *z,real_type 
 
   //multiply with da
   for(int k=0;k<batchsize;k++){
-      matMul(&da[k*neurons_out],&d_softmax[k*neurons_out*neurons_out],1,neurons_out,neurons_out,&dz[k*neurons_out]);
+      mat_mul_cpu(&da[k*neurons_out],&d_softmax[k*neurons_out*neurons_out],1,neurons_out,neurons_out,&dz[k*neurons_out]);
   }
   free(d_softmax);
 }

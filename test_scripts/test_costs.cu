@@ -11,16 +11,16 @@
 #include <iostream>
 
 // own headers
-#include "costfunctions.h"
-#include "activations.h"
 #include "test_matrix_operator.h"
-#include "matrix_operator.h"
 #include "common.h"
 #include <float.h>
 #include <math.h>
 
 #include "mse_cost.h"
 #include "cce_cost.h"
+#include "cce_soft_cost.h"
+
+#include "common_utils.h"
 
 // define thresholds
 #define COST_THRESHOLD(size) (sqrt(size)*DBL_EPSILON)
@@ -37,33 +37,6 @@ int main(int argc, char **argv)
   printf("device %d: %s \n\n", dev, deviceProp.name);
   CHECK(cudaSetDevice(dev));
 
-  // testing the cost functions
-  int size = 100;
-  int size_batch = 100;
-  double* data_in  = (double*) malloc(size*sizeof(double));
-  double* data_out = (double*) malloc(size*sizeof(double));
-
-  // create input
-  int index_in  = 12;
-  int index_out = 24;
-  for (int i = 0; i < size; i++) {
-    if (index_in == i) {
-      data_in[i] = 1.;
-      data_out[i] = 0.01;
-    } else if (index_out == i) {
-      data_in[i] = 0.01;
-      data_out[i] = 1.;
-    } else {
-      data_in[i] = 0.01;
-      data_out[i] = 0.01;
-    }
-  }
-
-  std::cout << "cost : " << categorical_crossentropy(data_in, data_out, size, size_batch) << std::endl;
-
-
-// ____________________________________________________________________________________________________________________________________________________________________
-
   printf("\n\nPerfomse the following checks:\n\n - mse, CAT_CROSS_ENT on HOST and Device\n - HOST and DEVICE same result\n - All Cost values positive\n - All Cost have local minimum around Target\n\n_________________________________________________\n");
 
   double *act_in,*act_out_soft,*act_out,*target,*delta_mse,*delta_cce,*tmp,*tmp2;
@@ -71,7 +44,7 @@ int main(int argc, char **argv)
 
   int neurons_out=100;
   int batchsize=100;
-  size=neurons_out*batchsize;
+  int size=neurons_out*batchsize;
 
   act_in=(double *)malloc(size*sizeof(double));
   act_out_soft=(double *)malloc(size*sizeof(double));
@@ -102,7 +75,7 @@ int main(int argc, char **argv)
 
     double cce_value=cce<double>(act_out,target,size);
 
-    double cce_soft_value=cce_softmax_cpu(act_out,target,size,batchsize);
+    double cce_soft_value=cce_soft_cpu<double>(act_out,target,size,batchsize);
 
     all_positive*=(mse_value>=0 &&cce_value>=0  &&cce_soft_value>=0 );
   }
@@ -117,7 +90,7 @@ int main(int argc, char **argv)
 
   double cce_min_value=cce<double>(target,target,size);
 
-  double cce_soft_min_value=cce_softmax_cpu(target,target,size,batchsize);
+  double cce_soft_min_value=cce_soft_cpu<double>(target,target,size,batchsize);
 
   int all_min_at_target=1;
 
@@ -128,14 +101,14 @@ int main(int argc, char **argv)
     create_random_matrix(delta,size,0.01,.1);
 
     // add onto target
-    matrix_add_cpu(act_out, target, delta,  size);
+    combine_pointwise_cpu<double>(act_out, target, delta,  size,add_functor<double>());
 
 
     double mse_value=mse<double>(act_out,target,size);
 
     double cce_value=cce<double>(act_out,target,size);
 
-    double cce_soft_value=cce_softmax_cpu(act_out,target,size,batchsize);
+    double cce_soft_value=cce_soft_cpu<double>(act_out,target,size,batchsize);
 
     all_min_at_target*=(mse_value>mse_min_value &&cce_value>cce_min_value  &&cce_soft_value>=cce_soft_min_value);
   }
@@ -176,33 +149,33 @@ int main(int argc, char **argv)
 // ___________________________________________________________________________________
 // combined. Check if cce_softmax give the same result
 
-// // normalise target
-//   double sum_target=0;
-//   for(int k=0;k<batchsize;k++){
-//       sum_target=0;
-//       for(int i =0;i<neurons_out;i++) sum_target+=target[k*neurons_out+i];
-//       for(int i =0;i<neurons_out;i++) target[k*neurons_out+i]/=sum_target;
-//   }
+// normalise target
+  double sum_target=0;
+  for(int k=0;k<batchsize;k++){
+      sum_target=0;
+      for(int i =0;i<neurons_out;i++) sum_target+=target[k*neurons_out+i];
+      for(int i =0;i<neurons_out;i++) target[k*neurons_out+i]/=sum_target;
+  }
 
-//   softmax_activation_cpu(act_in,act_out_soft,batchsize,neurons_out);
-//   d_cce(act_out_soft, target, delta_cce, size);
-//   softmax_activation_backprop_cpu(delta_cce,act_in,tmp2,neurons_out,batchsize);
-//   d_cce_softmax_cpu(act_in,target,tmp,size,batchsize);
+  softmax_activation_cpu<double>(act_in,act_out_soft,batchsize,neurons_out);
+  d_cce<double>(act_out_soft, target, delta_cce, size);
+  softmax_activation_backprop_cpu<double>(delta_cce,act_in,tmp2,neurons_out,batchsize);
+  d_cce_soft_cpu<double>(act_in,target,tmp,size,batchsize);
 
-//   printf("BackProp cce_softmax and cce + softmax on Host max absolute difference %e\n",max_abs_diff(tmp,tmp2,size) );
-//   printf("BackProp cce_softmax and cce + softmax same result on HOST %d\n",double_equal(tmp,tmp2,size,SOFTMAX_BB_COMP_THRESHOLD(neurons_out)));
+  printf("BackProp cce_softmax and cce + softmax on Host max absolute difference %e\n",max_abs_diff(tmp,tmp2,size) );
+  printf("BackProp cce_softmax and cce + softmax same result on HOST %d\n",double_equal(tmp,tmp2,size,SOFTMAX_BB_COMP_THRESHOLD(neurons_out)));
 
-//   copy_host_to_device_double(target,dev_target,size);
-//   softmax_activation_onDev(dev_act_in,dev_act_out_soft,batchsize,neurons_out);
-//   d_cce_onDev(dev_act_out_soft, dev_target, dev_delta_cce, size);
-//   softmax_activation_backprop_onDev(dev_delta_cce,dev_act_in,dev_tmp2,neurons_out,batchsize);
-//   d_cce_softmax_onDev(dev_act_in,dev_target,dev_tmp,size,batchsize);
+  copy_host_to_device_double(target,dev_target,size);
+  softmax_activation_onDev<double>(dev_act_in,dev_act_out_soft,batchsize,neurons_out);
+  d_cce_onDev<double>(dev_act_out_soft, dev_target, dev_delta_cce, size);
+  softmax_activation_backprop_onDev(dev_delta_cce,dev_act_in,dev_tmp2,neurons_out,batchsize);
+  d_cce_soft_onDev<double>(dev_act_in,dev_target,dev_tmp,size,batchsize);
 
-//   copy_device_to_host_double(dev_tmp, tmp, size);
-//   copy_device_to_host_double(dev_tmp2, tmp2, size);
+  copy_device_to_host_double(dev_tmp, tmp, size);
+  copy_device_to_host_double(dev_tmp2, tmp2, size);
 
-//   printf("BackProp cce_softmax and cce + softmax on Device max absolute difference %e\n",max_abs_diff(tmp,tmp2,size) );
-//   printf("BackProp cce_softmax and cce + softmax same result on Device %d\n",double_equal(tmp,tmp2,size,SOFTMAX_BB_COMP_THRESHOLD(neurons_out)));
+  printf("BackProp cce_softmax and cce + softmax on Device max absolute difference %e\n",max_abs_diff(tmp,tmp2,size) );
+  printf("BackProp cce_softmax and cce + softmax same result on Device %d\n",double_equal(tmp,tmp2,size,SOFTMAX_BB_COMP_THRESHOLD(neurons_out)));
 
 
   free(act_out);

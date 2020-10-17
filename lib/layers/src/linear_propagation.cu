@@ -13,8 +13,12 @@
 
 // own c headers
 #include "common.h"
-#include "matrix_operator.h"
 #include "linear_propagation.h"
+#include "mat_mul.h"
+#include "reduce.h"
+#include "pw2d_comp.h"
+#include "common_utils.h"
+#include "pw_comp.h"
 
 //_________________________________________________________________________________________________
 // linear forward propagation cpu // w(neurons_in x neurons_out); a(batchsize x neurons_in)
@@ -28,8 +32,8 @@ void linear_forward_cpu(double* w,
 			int     batchsize,
 			int     a_cols)
 {
-  matMul(a, w, batchsize, neurons_out, neurons_in, z);
-  add_along_col_direct_cpu(z, b, batchsize, neurons_out);
+  mat_mul_cpu<double>(a, w, batchsize, neurons_out, neurons_in, z);
+  func_along_axis_cpu<double>(add_functor<double>(),z,b,z,batchsize, neurons_out,0,neurons_out);
 }
 
 //_________________________________________________________________________________________________
@@ -45,8 +49,8 @@ void linear_backprop_cpu(double* w,
 {
   // -> transpose the w matrix beforehand
   double* wT = (double*) malloc(neurons_in*neurons_out*sizeof(double));
-  matrix_transpose_cpu(wT, w, neurons_in, neurons_out);
-  matMul(dz, wT, batchsize, neurons_in, neurons_out, da);
+  mat_transpose_cpu<double>(wT, w, neurons_in, neurons_out);
+  mat_mul_cpu<double>(dz, wT, batchsize, neurons_in, neurons_out, da);
   free(wT);
 }
 
@@ -63,14 +67,14 @@ void linear_update_weights_cpu(double* dz,
 {
   // transpose the matrix a beforehand
   double* aT = (double*) malloc(batchsize*neurons_in*sizeof(double));
-  matrix_transpose_cpu(aT, a, batchsize, neurons_in);
+  mat_transpose_cpu<double>(aT, a, batchsize, neurons_in);
 
   // temporary matrix dw -> try to avoid
   double* dw = (double*) malloc(neurons_in*neurons_out*sizeof(double));
-  matMul(aT, dz, neurons_in, neurons_out, batchsize, dw);
+  mat_mul_cpu<double>(aT, dz, neurons_in, neurons_out, batchsize, dw);
 
-  // multiplying dw by scalar and adding to dw
-  mulAdd_direct_cpu(w, dw, -(double)learning_rate/(double)batchsize, neurons_in*neurons_out);
+  // multiplying dw by scalar and adding to w
+  combine_pointwise_cpu<double>(w,dw,w,neurons_in*neurons_out,mul_add_functor<double>(-(double)learning_rate/(double)batchsize));
 
   // free up additional memory
   free(dw);
@@ -90,8 +94,8 @@ void linear_update_bias_cpu(double* dz,
   memset(dz_summed_and_scaled, 0, neurons_out*sizeof(double));
 
   // do the bias update
-  add_reduce_dim_cpu(dz, dz_summed_and_scaled, batchsize, neurons_out, 0, neurons_out);
-  mulAdd_direct_cpu(b, dz_summed_and_scaled, -(double)learning_rate/(double)batchsize, neurons_out);
+  add_reduce_dim_cpu<double>(dz, dz_summed_and_scaled, batchsize, neurons_out, 0, neurons_out);
+  combine_pointwise_cpu<double>(b,dz_summed_and_scaled,b,neurons_out,mul_add_functor<double>(-(double)learning_rate/(double)batchsize));
 
   // freeing up space
   free(dz_summed_and_scaled);
@@ -109,8 +113,8 @@ void linear_forward_gpu(double* w,
 			int     a_cols)
 {
   // multiply w*a
-  matMul_sm_onDev_tr(a, w, 0, 0, batchsize,neurons_in , neurons_in, neurons_out, z);
-  add_along_col_direct_onDev(z, b, batchsize, neurons_out);
+  mat_mul_tr_onDev<double>(a, w, 0, 0, batchsize,neurons_in , neurons_in, neurons_out, z);
+  func_along_axis_onDev<double>(add_functor<double>(),z,b,z, batchsize, neurons_out, 0,neurons_out);
 }
 
 //_________________________________________________________________________________________________
@@ -125,7 +129,7 @@ void linear_backprop_gpu(double* w,
 			 int     dz_cols)
 {
   // get rid of dz_cols -> cleaner
-  matMul_sm_onDev_tr(dz, w, 0, 1, batchsize, neurons_out, neurons_out, neurons_in, da);
+  mat_mul_tr_onDev<double>(dz, w, 0, 1, batchsize, neurons_out, neurons_out, neurons_in, da);
 }
 
 //_________________________________________________________________________________________________
@@ -139,8 +143,8 @@ void linear_update_weights_gpu(double* dz,
 			       double  learning_rate,
 			       double* helper_storage)
 {
-  matMul_sm_onDev_tr(a, dz, 1, 0, neurons_in, batchsize, batchsize, neurons_out, helper_storage);
-  mulAdd_direct_onDev(w, helper_storage, -(double)learning_rate/(double)batchsize, neurons_in*neurons_out, 64);
+	mat_mul_tr_onDev<double>(a, dz, 1, 0, neurons_in, batchsize, batchsize, neurons_out, helper_storage);
+	combine_pointwise_onDev<double>(w,helper_storage,w,neurons_in*neurons_out,mul_add_functor<double>(-(double)learning_rate/(double)batchsize));
 }
 
 //_________________________________________________________________________________________________
@@ -152,6 +156,6 @@ void linear_update_bias_gpu(double* dz,
 			    double  learning_rate,
 			    double* helper_storage)
 {
-  add_reduce_dim_onDev(dz, helper_storage, batchsize, neurons_out, 0, neurons_out);
-  mulAdd_direct_onDev(b, helper_storage,-(double)learning_rate/(double)batchsize, neurons_out, 64);
+  	add_reduce_dim_onDev<double>(dz, helper_storage, batchsize, neurons_out, 0, neurons_out);
+	combine_pointwise_onDev<double>(b,helper_storage,b,neurons_out,mul_add_functor<double>(-(double)learning_rate/(double)batchsize));
 }

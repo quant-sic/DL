@@ -57,7 +57,7 @@ struct div_functor {
 // matrix_transpose_cpu and onDev
 // computes the transposed matrix of a double matrix with arbitrary size on cpu
 template<typename real_type>
-void matrix_transpose_cpu(real_type* out,
+void mat_transpose_cpu(real_type* out,
 			  real_type* inp,
 			  int     rows,
 			  int     cols)

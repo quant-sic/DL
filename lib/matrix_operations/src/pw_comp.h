@@ -36,7 +36,7 @@ __global__ void hadamard_func_rhs_kernel(const real_type *dev_lhs, real_type *de
 }
 
 template <class real_type,typename Functor>
-void apply_pointwise(const real_type *in, real_type *out, int size, Functor functor)
+void apply_pointwise_cpu(const real_type *in, real_type *out, int size, Functor functor)
 {
     for (int i = 0; i < size; i++)
         out[i] = functor(in[i]);
@@ -50,7 +50,7 @@ void hadamard_func_rhs(const real_type *lhs, real_type *rhs, real_type *res, int
 }
 
 template <class real_type,typename Functor>
-void combine_pointwise(const real_type* in,const real_type* target,real_type* delta,int size,Functor functor){
+void combine_pointwise_cpu(const real_type* in,const real_type* target,real_type* delta,int size,Functor functor){
     for(int i=0;i<size;i++) delta[i]=functor(in[i],target[i]);
 }
 

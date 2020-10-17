@@ -1,11 +1,7 @@
 cuda_add_library( matrix_operations_src
     
-    src/kernel_utils.cu
-    src/kernel_utils.h
-    src/matrix_operator_gpu.cu
-    src/matrix_operator_gpu.h
-    src/matrix_operator.cu
-    src/matrix_operator.h
+    # src/matrix_operator_gpu.cu
+    # src/matrix_operator_gpu.h
     src/reduce.cu
     src/reduce.h
     src/mat_mul.cu

@@ -1,13 +1,12 @@
 cuda_add_library(lib_costs_src
     
-    src/costfunctions.cu
-    src/costfunctions.h
-    src/costs.cu
     src/costs.h
     src/mse_cost.h
     src/mse_cost.cu
     src/cce_cost.cu
     src/cce_cost.h
+    src/cce_soft_cost.cu
+    src/cce_soft_cost.h
     )
 
 

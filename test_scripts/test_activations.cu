@@ -1,4 +1,3 @@
-#include "costfunctions.h"
 #include "test_matrix_operator.h"
 #include "common.h"
 #include <float.h>

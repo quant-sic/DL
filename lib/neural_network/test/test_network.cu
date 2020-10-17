@@ -11,6 +11,7 @@
 #include "test_network.h"
 #include "mse_cost.h"
 #include "cce_cost.h"
+#include "cce_soft_cost.h"
 
 //_______________________________________________________________________________________________
 // create a neural network from naming strings and sizes for the layers

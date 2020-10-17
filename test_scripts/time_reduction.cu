@@ -11,11 +11,8 @@
 // own c headers
 #include "common.h"
 #include "global.h"
-#include "matrix_operator.h"
-#include "matrix_operator_gpu.h"
-#include "kernel_utils.h"
-#include "activations.h"
-#include "costfunctions.h"
+#include "cce_cost.h"
+#include "reduce.h"
 
 
 int main(int argc, char **argv)
@@ -67,77 +64,18 @@ int main(int argc, char **argv)
     t1=t2=t3=t4=DBL_MAX;
     for (int i=0;i<5;i++){
       start=seconds();
-      categorical_crossentropy_onDev(dev_lhs,dev_rhs,size,(int)sqrt(size));
+      cce_onDev<double>(dev_lhs,dev_rhs,size);
       t=seconds()-start;
       t1=t<t1?t:t1;
 
       start=seconds();
-      categorical_crossentropy(lhs,rhs,size,(int)sqrt(size));
+      cce<double>(lhs,rhs,size);
       t=seconds()-start;
       t2=t<t2?t:t2;
 
     }
     fprintf(fp_rowred,"%d\t%e\t%e\n",size,t1,t2);
 }
-
-
-
-
-    // scale analysis cost reduction
-    FILE *fp_rowred_an = fopen("analysis/rowredcost_analysis.txt", "w");
-    fprintf(fp_rowred_an,"N\tCostTIME_onDEV_T1\tCostTIME_HOST\tCostTIME_HOST_Tp\n");
-
-
-    for(size=(1<<10);size<=(1<<22);size<<=3){
-
-      res1=(double *)malloc(size*sizeof(double));
-      lhs=(double *)malloc(size*sizeof(double));
-      rhs=(double *)malloc(size*sizeof(double));
-
-      for(int i =0;i<size;i++) lhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
-      for(int i =0;i<size;i++) rhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
-
-      CHECK(cudaMalloc((void**)&dev_res1, size*sizeof(double)));
-      CHECK(cudaMalloc((void**)&dev_lhs, size*sizeof(double)));
-      CHECK(cudaMalloc((void**)&dev_rhs, size*sizeof(double)));
-
-      copy_host_to_device_double(lhs,dev_lhs,size);
-      copy_host_to_device_double(rhs,dev_rhs,size);
-
-      for(int n_threads=1;n_threads<(1<<12);n_threads<<=1){
-
-        t1=t2=t3=t4=DBL_MAX;
-        for (int i=0;i<3;i++){
-
-          start=seconds();
-          dim3 grid(1,1);
-          add_reduce_rows_func_kernel<<<grid,1>>>(dev_lhs, dev_rhs,dev_res1,size, SUMM_CAT);
-          CHECK(cudaDeviceSynchronize());
-          CHECK(cudaGetLastError());
-          t=seconds()-start;
-          t1=t<t1?t:t1;
-
-          start=seconds();
-          categorical_crossentropy(lhs,rhs,size,(int)sqrt(size));
-          t=seconds()-start;
-          t2=t<t2?t:t2;
-
-          start=seconds();
-          int threads_block=(n_threads>BS_R_RED_1D ? BS_R_RED_1D :n_threads);
-          dim3 n_blocks((n_threads+threads_block-1)/threads_block,1);
-          add_reduce_rows_func_kernel<<<n_blocks,threads_block>>>(dev_lhs, dev_rhs,dev_res1,size, SUMM_CAT);
-          CHECK(cudaDeviceSynchronize());
-          CHECK(cudaGetLastError());
-          t=seconds()-start;
-          t3=t<t3?t:t3;
-
-        }
-        fprintf(fp_rowred_an,"%d\t%d\t%e\t%e\t%e\t%e\n",size,n_threads,t1,t2,t3);
-      }
-    }
-    fclose (fp_rowred_an);
-
-
 
   // matrix row reduction
   FILE *fp_rowred_mr = fopen("analysis/rowredmr.txt", "w");

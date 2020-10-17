@@ -13,12 +13,9 @@
 // own c headers
 #include "common.h"
 #include "global.h"
-#include "matrix_operator.h"
-#include "matrix_operator_gpu.h"
-#include "kernel_utils.h"
-#include "activations.h"
-#include "costfunctions.h"
 #include "relu.h"
+
+#include "common_utils.h"
 
 
 int main(int argc, char **argv)
@@ -39,7 +36,7 @@ int main(int argc, char **argv)
   // time pointwise_combine problem
   double t,t1,t2,t3;
   int size;
-  double *res1,*res2,*lhs,*rhs;
+  double *res1,*lhs,*rhs;
   double *dev_res1,*dev_lhs,*dev_rhs;
 
   FILE *fp_c = fopen("/users/stud/dechentf/DL/analysis/copying.txt", "w");
@@ -74,7 +71,16 @@ int main(int argc, char **argv)
 
  size=1<<20;
   res1=(double *)malloc(size*sizeof(double));
-  res2=(double *)malloc(size*sizeof(double));
+  lhs=(double *)malloc(size*sizeof(double));
+  rhs=(double *)malloc(size*sizeof(double));
+  for(int i =0;i<size;i++) lhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
+  for(int i =0;i<size;i++) rhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
+
+
+
+
+  size=1<<20;
+  res1=(double *)malloc(size*sizeof(double));
   lhs=(double *)malloc(size*sizeof(double));
   rhs=(double *)malloc(size*sizeof(double));
   for(int i =0;i<size;i++) lhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
@@ -82,9 +88,9 @@ int main(int argc, char **argv)
 
 
   FILE *fp_pw = fopen("/users/stud/dechentf/DL/analysis/pointwise.txt", "w");
-  fprintf(fp_pw,"N\tTIME_onDEV_fptr\tTIME_onDEV_old\tTIME_HOST\n");
+  fprintf(fp_pw,"N\tTIME_onDEV\tTIME_HOST\n");
 
-  for(size=1;size<=(1<<24);size<<=1){
+  for(size=1;size<=(1<<22);size<<=1){
 
     res1=(double *)malloc(size*sizeof(double));
     lhs=(double *)malloc(size*sizeof(double));
@@ -97,24 +103,18 @@ int main(int argc, char **argv)
 
     t1=t2=t3=DBL_MAX;
     for (int i=0;i<5;i++){
-
-      start=seconds();
-      relu_activation_gpu(dev_lhs,dev_res1,size);
-      t=seconds()-start;
-      t2=t<t2?t:t2;
-
       start=seconds();
       relu_activation_onDev<double>(dev_lhs,dev_res1,size);
       t=seconds()-start;
       t1=t<t1?t:t1;
 
       start=seconds();
-      relu_activation_cpu(lhs,res1,size);
+      relu_activation_cpu<double>(lhs,res1,size);
       t=seconds()-start;
-      t3=t<t3?t:t3;
+      t2=t<t2?t:t2;
 
     }
-    fprintf(fp_pw,"%d\t%e\t%e\t%e\n",size,t1,t2,t3);
+    fprintf(fp_pw,"%d\t%e\t%e\n",size,t1,t2);
 
 
   }
@@ -122,209 +122,47 @@ int main(int argc, char **argv)
 
 
 
-  // size=1<<20;
-  // res1=(double *)malloc(size*sizeof(double));
-  // res2=(double *)malloc(size*sizeof(double));
-  // lhs=(double *)malloc(size*sizeof(double));
-  // rhs=(double *)malloc(size*sizeof(double));
-  // for(int i =0;i<size;i++) lhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
-  // for(int i =0;i<size;i++) rhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
 
 
-  // FILE *fp_pw = fopen("/users/stud/dechentf/DL/analysis/pointwise.txt", "w");
-  // fprintf(fp_pw,"N\tTIME_onDEV\tTIME_HOST\n");
+  FILE *fp_cpw = fopen("analysis/comb_pointwise.txt", "w");
+  fprintf(fp_cpw,"N\tOP_P_T\tT_B\tTIME_DEVICE\tTIME_HOST\tTIME_onDEV\n");
 
-  // for(size=1;size<=(1<<22);size<<=1){
+  for(size=1;size<=(1<<22);size<<=1){
 
-  //   res1=(double *)malloc(size*sizeof(double));
-  //   lhs=(double *)malloc(size*sizeof(double));
-  //   for(int i =0;i<size;i++) lhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
+    res1=(double *)malloc(size*sizeof(double));
+    lhs=(double *)malloc(size*sizeof(double));
+    rhs=(double *)malloc(size*sizeof(double));
+    for(int i =0;i<size;i++) lhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
+    for(int i =0;i<size;i++) rhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
 
-  //   CHECK(cudaMalloc((void**)&dev_res1, size*sizeof(double)));
-  //   CHECK(cudaMalloc((void**)&dev_lhs, size*sizeof(double)));
+    CHECK(cudaMalloc((void**)&dev_res1, size*sizeof(double)));
+    CHECK(cudaMalloc((void**)&dev_lhs, size*sizeof(double)));
+    CHECK(cudaMalloc((void**)&dev_rhs, size*sizeof(double)));
 
-  //   copy_host_to_device_double(lhs,dev_lhs,size);
+    copy_host_to_device_double(lhs,dev_lhs,size);
+    copy_host_to_device_double(rhs,dev_rhs,size);
 
-  //   t1=t2=t3=DBL_MAX;
-  //   for (int i=0;i<5;i++){
-  //     start=seconds();
-  //     relu_activation_gpu(dev_lhs,dev_res1,size);
-  //     t=seconds()-start;
-  //     t1=t<t1?t:t1;
+    for(int op_p_th=1;op_p_th<50;op_p_th++){
+      for(int threads_block=64;threads_block<=1024;threads_block*=2){
+        t1=t2=t3=DBL_MAX;
+        for (int i=0;i<5;i++){
 
-  //     start=seconds();
-  //     relu_activation_cpu(lhs,res1,size);
-  //     t=seconds()-start;
-  //     t2=t<t2?t:t2;
+          start=seconds();
+          combine_pointwise_cpu(lhs,rhs,res1,size,mul_functor<double>());
+          t=seconds()-start;
+          t2=t<t2?t:t2;
 
-  //   }
-  //   fprintf(fp_pw,"%d\t%e\t%e\n",size,t1,t2);
+          start=seconds();
+          combine_pointwise_onDev(dev_lhs,dev_rhs,dev_res1,size,mul_functor<double>());
+          t=seconds()-start;
+          t3=t<t3?t:t3;
+        }
+        fprintf(fp_cpw,"%d\t%d\t%d\t%e\t%e\t%e\n",size,op_p_th,threads_block,t1,t2,t3);
 
-
-  // }
-  // fclose (fp_pw);
-
-
-  // // pw scale analysis
-  // FILE *fp_pw_an = fopen("analysis/pointwise_analysis.txt", "w");
-  // fprintf(fp_pw_an,"N\tTIME_onDEV_T1\tTIME_HOST\tTIME_onDEV_Tp\n");
-
-  // for(size=1;size<=(1<<22);size<<=1){
-
-  //   res1=(double *)malloc(size*sizeof(double));
-  //   lhs=(double *)malloc(size*sizeof(double));
-  //   for(int i =0;i<size;i++) lhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
-
-  //   CHECK(cudaMalloc((void**)&dev_res1, size*sizeof(double)));
-  //   CHECK(cudaMalloc((void**)&dev_lhs, size*sizeof(double)));
-
-  //   copy_host_to_device_double(lhs,dev_lhs,size);
-
-  //   t1=t2=t3=DBL_MAX;
-
-  //   for (int i=0;i<3;i++){
-
-  //     start=seconds();
-  //     dim3 grid=pointwise_grid(size);
-  //     apply_pointwise_kernel<<<1,1>>>(dev_lhs, dev_res1, size,RELU);
-  //     CHECK(cudaDeviceSynchronize());
-  //     CHECK(cudaGetLastError());
-  //     t=seconds()-start;
-  //     t1=t<t1?t:t1;
-
-  //     start=seconds();
-  //     relu_activation_cpu(lhs,res1,size);
-  //     t=seconds()-start;
-  //     t2=t<t2?t:t2;
-
-  //   }
-  //   for(int n_threads=1;n_threads<=(1<<15);n_threads*=2){
-
-  //     int threads_block=(n_threads>BS_1D ? BS_1D :n_threads);
-  //     dim3 grid((n_threads+threads_block-1)/threads_block);
-
-  //     for (int i=0;i<3;i++){
-
-  //       start=seconds();
-  //       apply_pointwise_kernel<<<grid,threads_block>>>(dev_lhs, dev_res1, size,RELU);
-  //       CHECK(cudaDeviceSynchronize());
-  //       CHECK(cudaGetLastError());
-  //       t=seconds()-start;
-  //       t3=t<t3?t:t3;
-
-  //     }
-
-  //     fprintf(fp_pw_an,"%d\t%d\t%e\t%e\t%e\n",size,n_threads,t1,t2,t3);
-  //   }
-
-  // }
-  // fclose (fp_pw_an);
-
-
-  // FILE *fp_cpw = fopen("analysis/comb_pointwise.txt", "w");
-  // fprintf(fp_cpw,"N\tOP_P_T\tT_B\tTIME_DEVICE\tTIME_HOST\tTIME_onDEV\n");
-
-  // for(size=1;size<=(1<<22);size<<=1){
-
-  //   res1=(double *)malloc(size*sizeof(double));
-  //   res2=(double *)malloc(size*sizeof(double));
-  //   lhs=(double *)malloc(size*sizeof(double));
-  //   rhs=(double *)malloc(size*sizeof(double));
-  //   for(int i =0;i<size;i++) lhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
-  //   for(int i =0;i<size;i++) rhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
-
-  //   CHECK(cudaMalloc((void**)&dev_res1, size*sizeof(double)));
-  //   CHECK(cudaMalloc((void**)&dev_lhs, size*sizeof(double)));
-  //   CHECK(cudaMalloc((void**)&dev_rhs, size*sizeof(double)));
-
-  //   copy_host_to_device_double(lhs,dev_lhs,size);
-  //   copy_host_to_device_double(rhs,dev_rhs,size);
-
-  //   for(int op_p_th=1;op_p_th<50;op_p_th++){
-  //     for(int threads_block=64;threads_block<=1024;threads_block*=2){
-  //       t1=t2=t3=DBL_MAX;
-  //       for (int i=0;i<5;i++){
-
-  //         start=seconds();
-  //         matrix_hadamard_cpu(res1,lhs,rhs,size);
-  //         t=seconds()-start;
-  //         t2=t<t2?t:t2;
-
-  //         start=seconds();
-  //         matrix_hadamard_onDev(dev_res1,dev_lhs,dev_rhs,size,threads_block);
-  //         t=seconds()-start;
-  //         t3=t<t3?t:t3;
-  //       }
-  //       fprintf(fp_cpw,"%d\t%d\t%d\t%e\t%e\t%e\n",size,op_p_th,threads_block,t1,t2,t3);
-
-  //     }
-  //   }
-  // }
-  // fclose (fp_cpw);
-
-  // // measure times for true efficiency true speed up, speed up, efficiency and scale up
-  // FILE *fp_cpw_an = fopen("analysis/comb_pointwise_analysis.txt", "w");
-  // fprintf(fp_cpw_an,"N\tOP_P_T\tT_B\tTIME_DEVICE\tTIME_HOST\tTIME_onDEV\n");
-
-  //   // for n=size
-  //   for(size=1<<10;size<=1<<22;size<<=3){
-
-  //     res1=(double *)malloc(size*sizeof(double));
-  //     res2=(double *)malloc(size*sizeof(double));
-  //     lhs=(double *)malloc(size*sizeof(double));
-  //     rhs=(double *)malloc(size*sizeof(double));
-  //     for(int i =0;i<size;i++) lhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
-  //     for(int i =0;i<size;i++) rhs[i]=(5.0*(double)rand()/(double)RAND_MAX);
-
-  //     CHECK(cudaMalloc((void**)&dev_res1, size*sizeof(double)));
-  //     CHECK(cudaMalloc((void**)&dev_lhs, size*sizeof(double)));
-  //     CHECK(cudaMalloc((void**)&dev_rhs, size*sizeof(double)));
-
-  //     copy_host_to_device_double(lhs,dev_lhs,size);
-  //     copy_host_to_device_double(rhs,dev_rhs,size);
-
-  //     int op_p_th=1;
-
-  //       // p
-  //       for(int n_threads=1;n_threads<=(1<<15);n_threads*=2){
-  //         t1=t2=t3=DBL_MAX;
-  //         for (int i=0;i<5;i++){
-
-  //           // T(1)
-  //           start=seconds();
-  //           comb_pointwise_1d_kernel<<<1, 1>>>(dev_res1, dev_lhs, dev_rhs, size,MUL);
-  //           CHECK(cudaDeviceSynchronize());
-  //           CHECK(cudaGetLastError());
-  //           t=seconds()-start;
-  //           t1=t<t1?t:t1;
-
-  //           // T'
-  //           start=seconds();
-  //           matrix_hadamard_cpu(res1,lhs,rhs,size);
-  //           t=seconds()-start;
-  //           t2=t<t2?t:t2;
-
-  //           // T(p)
-  //           int threads_block=(n_threads>BS_1D ? BS_1D :n_threads);
-  //           int n_blocks=((n_threads+threads_block-1)/threads_block);
-  //           start=seconds();
-  //           comb_pointwise_1d_kernel<<<n_blocks, threads_block>>>(dev_res1, dev_lhs, dev_rhs, size,MUL);
-  //           CHECK(cudaDeviceSynchronize());
-  //           CHECK(cudaGetLastError());
-  //           t=seconds()-start;
-  //           t3=t<t3?t:t3;
-  //         }
-  //         fprintf(fp_cpw_an,"%d\t%d\t%d\t%e\t%e\t%e\n",size,op_p_th,n_threads,t1,t2,t3);
-  //     }
-  //     CHECK(cudaFree(dev_res1));
-  //     CHECK(cudaFree(dev_lhs));
-  //     CHECK(cudaFree(dev_rhs));
-  //     free(res1);
-  //     free(res2);
-  //     free(lhs);
-  //     free(rhs);
-  //   }
-  //   fclose (fp_cpw_an);
+      }
+    }
+  }
+  fclose (fp_cpw);
 
 
 

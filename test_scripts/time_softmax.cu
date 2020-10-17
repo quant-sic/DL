@@ -1,8 +1,7 @@
-#include "activations.h"
-#include "costfunctions.h"
 #include "common.h"
 #include <float.h>
 #include <math.h>
+#include "softmax.h"
 
 int main(int argc, char **argv)
 {
@@ -53,23 +52,23 @@ int main(int argc, char **argv)
 
 
           start=seconds();
-          softmax_activation_onDev(dev_act_in,dev_act_out_soft,batchsize,neurons_out);
+          softmax_activation_onDev<double>(dev_act_in,dev_act_out_soft,batchsize,neurons_out);
           t=seconds()-start;
           t1=t<t1?t:t1;
 
           start=seconds();
-          softmax_activation_cpu(act_in,act_out_soft,batchsize,neurons_out);
+          softmax_activation_cpu<double>(act_in,act_out_soft,batchsize,neurons_out);
           t=seconds()-start;
           t2=t<t2?t:t2;
 
 
           start=seconds();
-          softmax_activation_backprop_onDev(dev_da,dev_act_in,dev_dz,neurons_out,batchsize);
+          softmax_activation_backprop_onDev<double>(dev_da,dev_act_in,dev_dz,neurons_out,batchsize);
           t=seconds()-start;
           t3=t<t3?t:t3;
 
           start=seconds();
-          softmax_activation_backprop_cpu(da,act_in,dz,neurons_out,batchsize);
+          softmax_activation_backprop_cpu<double>(da,act_in,dz,neurons_out,batchsize);
           t=seconds()-start;
           t4=t<t4?t:t4;
 

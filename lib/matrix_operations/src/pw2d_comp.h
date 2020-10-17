@@ -1,6 +1,7 @@
 #ifndef _PW2D_COMP_H_
 #define _PW2D_COMP_H_
 
+#include <assert.h>
 
 // on cpu
 // dim_add is dimension along which the vector should be added. vector should have the size of the other dimension
