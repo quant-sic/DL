@@ -9,6 +9,9 @@
 
 #include "timer.h"
 #include "test_network.h"
+#include "mse_cost.h"
+#include "cce_cost.h"
+#include "cce_soft_cost.h"
 
 //_______________________________________________________________________________________________
 // create a neural network from naming strings and sizes for the layers
@@ -31,9 +34,9 @@ neural_network create_neural_network(const std::vector <std::string>& v_layers,
   if (cost_name == "cce") {
     cce_cost* cce = new cce_cost();
     nn.set_cost(cce);
-  } else if (cost_name == "rms") {
-    rms_cost* rms = new rms_cost();
-    nn.set_cost(rms);
+  } else if (cost_name == "mse") {
+    mse_cost* mse = new mse_cost();
+    nn.set_cost(mse);
   } else if (cost_name == "cce_soft") {
     cce_soft_cost* cce_soft = new cce_soft_cost();
     nn.set_cost(cce_soft);
@@ -358,7 +361,7 @@ size_t flop_dcce(size_t size_batch,
 
 //________________________________________________________________________________________________
 // d cost flop
-size_t flop_drms(size_t size_batch,
+size_t flop_dmse(size_t size_batch,
 		 size_t neurons_out)
 {
   return size_batch * neurons_out;
@@ -410,8 +413,8 @@ size_t flop_neural_network_backward(std::string               cost,
   // add the inital cost
   if (cost == "cce")
     flop += flop_dcce(size_batch, v_sizes.back());
-  else if (cost == "rms")
-    flop += flop_drms(size_batch, v_sizes.back());
+  else if (cost == "mse")
+    flop += flop_dmse(size_batch, v_sizes.back());
   else if (cost == "cce_soft")
     flop += flop_dcce_soft(size_batch, v_sizes.back());
   

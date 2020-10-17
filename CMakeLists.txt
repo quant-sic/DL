@@ -35,6 +35,9 @@ include_directories(
   ./lib/pybind11/include
   )
 
+# can be used to set preprocessor definitions
+# target_compile_definitions(target PUBLIC VARIABLE=VALUE) for target based definitions
+add_compile_definitions(ANALYSIS_DIR="${CMAKE_SOURCE_DIR}/analyis")
 
 # add libs
 add_subdirectory(lib/pybind11)

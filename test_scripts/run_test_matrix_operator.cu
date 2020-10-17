@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "common.h"
-#include "matrix_operator.h"
 #include "test_matrix_operator.h"
 
 //_________________________________________________________________________________________________
@@ -72,9 +71,12 @@ int main(int agrc, char** argv) {
       copy_host_to_device_double(h_res, d_res, size);
             
       // calculating host and device result
+
+
       matrix_hadamard_cpu  (h_res, h_lhs, h_rhs, size);
       matrix_hadamard_onDev(d_res, d_lhs, d_rhs, size, dummy_threads_block);
       
+
       // copying result back to host
       copy_device_to_host_double(d_res, c_res, size);
             

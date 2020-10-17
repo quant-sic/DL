@@ -99,8 +99,8 @@ std::string neural_network::produce_naming_short(std::vector <int>& v_neurons)
     name += v_layers[idx]->get_name() + "_";
 
   // adding the cost to the short
-  if (_cost->get_type() == RMS)
-    name += "rms_";
+  if (_cost->get_type() == MSE)
+    name += "mse_";
   else if (_cost->get_type() == CCE)
     name += "cce_";
   else if (_cost->get_type() == CCE_SOFT)

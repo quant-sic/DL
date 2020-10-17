@@ -2,32 +2,27 @@
 #define _TANH_H_
 
 
-#include "../../misc/global.h"
-#include "../../utils/common_utils.h"
-#include "../../utils/device_utils.h"
-#include "../../utils/host_utils.h"
+#include "global.h"
+#include "pw_comp.h"
 
 // standard libraries 
 #include <math.h>
 
 
-template<class real_type> 
-__device__ pointwise<real_type> p_tanh_func = tanh;
-
+template<class real_type>
+struct tanh_functor {
+  __device__ __host__ real_type operator()(const real_type x) { return  tanh(x); }
+};
 
 template<class real_type>
 void tanh_activation_cpu(const real_type *in, real_type *out, int size){
-    apply_pointwise(in,out,size,&tanh);
+    apply_pointwise_cpu(in,out,size,tanh_functor<real_type>());
 }
 
 
 template<class real_type>
 void tanh_activation_onDev(const real_type *dev_in, real_type *dev_out, int size){
-    
-    pointwise<real_type> dev_tanh_func;
-    cudaMemcpyFromSymbol(&dev_tanh_func, p_tanh_func<real_type>, sizeof(pointwise<real_type>));
-
-    apply_pointwise_onDev<real_type>(dev_in,dev_out,size,dev_tanh_func);
+    apply_pointwise_onDev<real_type>(dev_in,dev_out,size,tanh_functor<real_type>());
 }
 
 

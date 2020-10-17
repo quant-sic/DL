@@ -10,9 +10,11 @@
 // own c headers
 #include "common.h"
 #include "global.h"
-#include "matrix_operator.h"
-#include "matrix_operator_gpu.h"
 #include "test_matrix_operator.h"
+#include "mat_mul.h"
+#include "common_utils.h"
+#include "pw_comp.h"
+
 
 // define thresholds
 #define MATMUL_COMP(K) (sqrt(2*K)*DBL_EPSILON)
@@ -42,9 +44,6 @@ int main(int argc, char **argv)
   double *A,*B,*B_T,*B_T_T,*C1,*C2,*C3,*C4,*C5,*C6,*C7,*C8,*A_T;
   double *A2,*B2,*A3,*B3,*As,*Bs,*A2s,*B2s,*one_m;
   int same_result;
-
-  int threads_block=1024;
-
 
   for(int M=1;M<=256;M*=2){
     for(int N=1;N<=256;N*=2){
@@ -82,9 +81,9 @@ int main(int argc, char **argv)
 
 
 
-        matMul(A, B,M,N,K,C1);
-        matMul_gpu2(A, B,M,N,K,C3,threads_block);
-        matMul_gpu_sm_tr(A, B, NORMAL,NORMAL, M, K, K, N, C7);
+        mat_mul_cpu<double>(A, B,M,N,K,C1);
+        mat_mul_coa_onDev<double>(A, B,M,N,K,C3);
+        mat_mul_tr_onDev<double>(A, B, NORMAL,NORMAL, M, K, K, N, C7);
 
 
 
@@ -107,8 +106,8 @@ int main(int argc, char **argv)
 
         // ____________________________________________________________________________
         // check if double transposing yields original array
-        mat_transpose_gpu(B, B_T, K, N,threads_block);
-        mat_transpose_gpu(B_T, B_T_T, N, K,threads_block);
+        mat_transpose_onDev<double>(B, B_T, K, N);
+        mat_transpose_onDev<double>(B_T, B_T_T, N, K);
         same_result=double_equal(B,B_T_T,B_nelem,DBL_EPSILON);
 
         if (!same_result){
@@ -132,26 +131,30 @@ int main(int argc, char **argv)
         delta=(max*(double)rand()/(double)RAND_MAX);
 
         // first scale then add then multiply variant
-        matrix_scalar_cpu(As,A,alpha,A_nelem);
-        matrix_scalar_cpu(A2s,A2,beta,A_nelem);
-        matrix_scalar_cpu(Bs,B,gamma,B_nelem);
-        matrix_scalar_cpu(B2s,B2,delta,B_nelem);
-        matrix_add_cpu(A3,As,A2s,A_nelem);
-        matrix_add_cpu(B3,Bs,B2s,B_nelem);
-        matMul_gpu_sm_tr(A3, B3, NORMAL,NORMAL, M, K, K, N, C1);
+        apply_pointwise_cpu<double>(A,As,A_nelem,scale_functor<double>(alpha));
+        apply_pointwise_cpu<double>(A2,A2s,A_nelem,scale_functor<double>(beta));
+        apply_pointwise_cpu<double>(B,Bs,B_nelem,scale_functor<double>(gamma));
+        apply_pointwise_cpu<double>(B2,B2s,B_nelem,scale_functor<double>(delta));
+
+        combine_pointwise_cpu<double>(As,A2s,A3,A_nelem,add_functor<double>());
+        combine_pointwise_cpu<double>(Bs,B2s,B3,B_nelem,add_functor<double>());
+
+        mat_mul_tr_onDev<double>(A3, B3, NORMAL,NORMAL, M, K, K, N, C1);
 
         // first multiply then scale then add variant
-        matMul_gpu_sm_tr(A, B, NORMAL,NORMAL, M, K, K, N, C2);
-        matMul_gpu_sm_tr(A2, B2, NORMAL,NORMAL, M, K, K, N, C3);
-        matMul_gpu_sm_tr(A, B2, NORMAL,NORMAL, M, K, K, N, C4);
-        matMul_gpu_sm_tr(A2, B, NORMAL,NORMAL, M, K, K, N, C5);
-        matrix_scalar_cpu(C2,C2,alpha*gamma,C_nelem);
-        matrix_scalar_cpu(C3,C3,beta*delta,C_nelem);
-        matrix_scalar_cpu(C4,C4,alpha*delta,C_nelem);
-        matrix_scalar_cpu(C5,C5,beta*gamma,C_nelem);
-        matrix_add_cpu(C6,C2,C3,C_nelem);
-        matrix_add_cpu(C6,C6,C4,C_nelem);
-        matrix_add_cpu(C6,C6,C5,C_nelem);
+        mat_mul_tr_onDev<double>(A, B, NORMAL,NORMAL, M, K, K, N, C2);
+        mat_mul_tr_onDev<double>(A2, B2, NORMAL,NORMAL, M, K, K, N, C3);
+        mat_mul_tr_onDev<double>(A, B2, NORMAL,NORMAL, M, K, K, N, C4);
+        mat_mul_tr_onDev<double>(A2, B, NORMAL,NORMAL, M, K, K, N, C5);
+
+        apply_pointwise_cpu<double>(C2,C2,C_nelem,scale_functor<double>(alpha*gamma));
+        apply_pointwise_cpu<double>(C3,C3,C_nelem,scale_functor<double>(beta*delta));
+        apply_pointwise_cpu<double>(C4,C4,C_nelem,scale_functor<double>(alpha*delta));
+        apply_pointwise_cpu<double>(C5,C5,C_nelem,scale_functor<double>(beta*gamma));
+
+        combine_pointwise_cpu<double>(C3,C2,C6,C_nelem,add_functor<double>());
+        combine_pointwise_cpu<double>(C4,C6,C6,C_nelem,add_functor<double>());
+        combine_pointwise_cpu<double>(C5,C6,C6,C_nelem,add_functor<double>());
 
         // check for equal result
         if (!double_equal(C6,C1,C_nelem,sqrt(4*(1+2*K))*DBL_EPSILON)){
@@ -169,13 +172,14 @@ int main(int argc, char **argv)
 
             ONE_Matrix(one_m,N,alpha);
 
-            mat_transpose_gpu(B, B_T, K, N,threads_block);
-            matrix_scalar_cpu(B_T,B_T,alpha,B_nelem);
-            matMul_gpu_sm_tr(one_m, B, NORMAL,TRANSPOSED, N, N, N, N, C1);
+            mat_transpose_onDev<double>(B, B_T, K, N);
+            apply_pointwise_cpu<double>(B_T,B_T,B_nelem,scale_functor<double>(alpha));
 
-            mat_transpose_gpu(A, A_T, M, K,threads_block);
-            matrix_scalar_cpu(A_T,A_T,alpha,A_nelem);
-            matMul_gpu_sm_tr(A, one_m, TRANSPOSED,NORMAL, N, N, N, N, C2);
+            mat_mul_tr_onDev<double>(one_m, B, NORMAL,TRANSPOSED, N, N, N, N, C1);
+
+            mat_transpose_onDev<double>(A, A_T, M, K);
+            apply_pointwise_cpu<double>(A_T,A_T,A_nelem,scale_functor<double>(alpha));
+            mat_mul_tr_onDev<double>(A, one_m, TRANSPOSED,NORMAL, N, N, N, N, C2);
 
             // check for equal result
             if (!double_equal(B_T,C1,B_nelem,MATMUL_COMP(N))){
@@ -204,18 +208,18 @@ int main(int argc, char **argv)
           C8 = (double *)malloc(K*K*sizeof(double));
 
 
-          mat_transpose_gpu(A, A_T, M, K,threads_block);
+          mat_transpose_onDev<double>(A, A_T, M, K);
 
-          matMul_gpu2(A2, A_T,M,M,K,C1,threads_block);
-          matMul_gpu_sm_tr(A2, A, NORMAL,TRANSPOSED, M, K, K, M,C2);
+          mat_mul_coa_onDev<double>(A2, A_T,M,M,K,C1);
+          mat_mul_tr_onDev<double>(A2, A, NORMAL,TRANSPOSED, M, K, K, M,C2);
 
           if (!double_equal(C1,C2,M*M,MATMUL_COMP(K))){
              printf("For M:%d,N:%d,K:%d A*A_T same result %d\n",M,N,K);
              return EXIT_FAILURE;
           }
 
-          matMul_gpu2(A_T, A2,K,K,M,C3,threads_block);
-          matMul_gpu_sm_tr(A, A2, TRANSPOSED,NORMAL, K, M, M, K,C4);
+          mat_mul_coa_onDev<double>(A_T, A2,K,K,M,C3);
+          mat_mul_tr_onDev<double>(A, A2, TRANSPOSED,NORMAL, K, M, M, K,C4);
 
           if (!double_equal(C3,C4,K*K,MATMUL_COMP(M))){
              printf("For M:%d,N:%d,K:%d A*A_T not same result\n",M,N,K);
@@ -225,9 +229,9 @@ int main(int argc, char **argv)
           C5 = (double *)malloc(K*K*sizeof(double));
           C6 = (double *)malloc(K*K*sizeof(double));
 
-          mat_transpose_gpu(B, B_T, K, N,threads_block);
-          matMul_gpu2(A_T, B_T,K,K,M,C5,threads_block);
-          matMul_gpu_sm_tr(A, B, TRANSPOSED,TRANSPOSED, K, M, M, K,C6);
+          mat_transpose_onDev<double>(B, B_T, K, N);
+          mat_mul_coa_onDev<double>(A_T, B_T,K,K,M,C5);
+          mat_mul_tr_onDev<double>(A, B, TRANSPOSED,TRANSPOSED, K, M, M, K,C6);
 
           if (!double_equal(C5,C6,K*K,MATMUL_COMP(M))){
              printf("For M:%d,N:%d,K:%d A_T*B_T not same result\n",M,N,K);

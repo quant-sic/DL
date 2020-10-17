@@ -10,6 +10,9 @@
 #include "linear.h"
 #include "softmax.h"
 #include "mnist_reader.h"
+#include "mse_cost.h"
+#include "cce_cost.h"
+#include "cce_soft_cost.h"
 
 // set up py namespace
 namespace py = pybind11;
@@ -52,10 +55,10 @@ PYBIND11_MODULE(binding, m) {
     .def("cost",&cce_cost::cost)
     .def("dcost",&cce_cost::dcost);
   
-  py::class_<rms_cost,costs>(m, "rms_cost")
+  py::class_<mse_cost,costs>(m, "mse_cost")
     .def(py::init<>())
-    .def("cost",&rms_cost::cost)
-    .def("dcost",&rms_cost::dcost);
+    .def("cost",&mse_cost::cost)
+    .def("dcost",&mse_cost::dcost);
   
   py::class_<cce_soft_cost,costs>(m, "cce_soft_cost")
     .def(py::init<>())

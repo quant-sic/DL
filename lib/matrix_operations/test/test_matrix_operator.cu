@@ -17,8 +17,7 @@
 #include <sys/time.h>
 
 // own c headers
-#include "matrix_operator.h"
-#include "matrix_operator_gpu.h"
+
 #include "test_matrix_operator.h"
 #include "common.h"
 
@@ -337,24 +336,26 @@ void print_matrix(double* mat,
   printf("\n");
 }
 
-//___________________________________________________________________________________________________
-// function wrappers for hadamard and add
-void matrix_hadamard_gpu_wrapper(const double* lhs, const double* rhs, int rows_lhs, int cols_rhs, int cols_lhs, double* res, int threads_block)
-{
-  matrix_hadamard_gpu(res, lhs, rhs, rows_lhs*cols_rhs, threads_block);
-}
 
-void matrix_add_gpu_wrapper(const double* lhs, const double* rhs, int rows_lhs, int cols_rhs, int cols_lhs, double* res, int threads_block)
-{
-  matrix_add_gpu(res, lhs, rhs, rows_lhs*cols_rhs, threads_block);
-}
+// functionality outdated
+// //___________________________________________________________________________________________________
+// // function wrappers for hadamard and add
+// void matrix_hadamard_gpu_wrapper(const double* lhs, const double* rhs, int rows_lhs, int cols_rhs, int cols_lhs, double* res, int threads_block)
+// {
+//   matrix_hadamard_gpu(res, lhs, rhs, rows_lhs*cols_rhs, threads_block);
+// }
 
-void matrix_hadamard_cpu_wrapper(const double* lhs, const double* rhs, int rows_lhs, int cols_rhs, int cols_lhs, double* res, int threads_block)
-{
-  matrix_hadamard_cpu(res, lhs, rhs, rows_lhs*cols_rhs);
-}
+// void matrix_add_gpu_wrapper(const double* lhs, const double* rhs, int rows_lhs, int cols_rhs, int cols_lhs, double* res, int threads_block)
+// {
+//   matrix_add_gpu(res, lhs, rhs, rows_lhs*cols_rhs, threads_block);
+// }
 
-void matrix_add_cpu_wrapper(const double* lhs, const double* rhs, int rows_lhs, int cols_rhs, int cols_lhs, double* res, int threads_block)
-{
-  matrix_add_cpu(res, lhs, rhs, rows_lhs*cols_rhs);
-}
+// void matrix_hadamard_cpu_wrapper(const double* lhs, const double* rhs, int rows_lhs, int cols_rhs, int cols_lhs, double* res, int threads_block)
+// {
+//   matrix_hadamard_cpu(res, lhs, rhs, rows_lhs*cols_rhs);
+// }
+
+// void matrix_add_cpu_wrapper(const double* lhs, const double* rhs, int rows_lhs, int cols_rhs, int cols_lhs, double* res, int threads_block)
+// {
+//   matrix_add_cpu(res, lhs, rhs, rows_lhs*cols_rhs);
+// }

@@ -11,9 +11,10 @@
 // own c headers
 #include "common.h"
 #include "global.h"
-#include "matrix_operator.h"
-#include "matrix_operator_gpu.h"
 #include "test_matrix_operator.h"
+#include "reduce.h"
+#include "pw2d_comp.h"
+#include "common_utils.h"
 
 // define thresholds
 #define ADD_REDUCE_DIM_THRESHOLD(dim_red,cols,rows) (10000*sqrt((dim_red ? cols:rows))*DBL_EPSILON)
@@ -59,8 +60,8 @@ int main(int argc, char **argv)
           vec_out=(double *)malloc(size_vec*sizeof(double));
           vec_out_tmp=(double *)malloc(size_vec*sizeof(double));
 
-          add_reduce_dim_cpu(mat_in,vec_out,rows,cols,dim_red,size_vec);
-          add_reduce_dim_gpu(mat_in,vec_out_tmp,rows,cols,dim_red,size_vec);
+          add_reduce_dim_cpu<double>(mat_in,vec_out,rows,cols,dim_red,size_vec);
+          add_reduce_dim_onDev<double>(mat_in,vec_out_tmp,rows,cols,dim_red,size_vec);
 
 
           // // check for equal result
@@ -84,8 +85,8 @@ int main(int argc, char **argv)
 
           create_random_matrix(vec,size_vec,-1,1);
 
-          add_along_axis_cpu(mat_in,vec,mat_out, rows,cols,dim_add,size_vec);
-          add_along_axis_gpu(mat_in,vec,mat_out_tmp, rows,cols,dim_add,size_vec);
+          func_along_axis_cpu<double>(add_functor<double>(),mat_in,vec,mat_out, rows,cols,dim_add,size_vec);
+          func_along_axis_onDev<double>(add_functor<double>(),mat_in,vec,mat_out_tmp, rows,cols,dim_add,size_vec);
 
           if (!double_equal(mat_out_tmp,mat_out,rows*cols,ADD_ALONG_AXIS_THRESHOLD)){
              printf("For rows:%d,cols:%d ADD_ALONG_AXIS not same result on Host and Device\n",rows,cols);
@@ -94,7 +95,7 @@ int main(int argc, char **argv)
 
           // check if 0 and add are consistent
           memset(vec,0,size_vec*sizeof(double));
-          add_along_axis_gpu(mat_in,vec,mat_out_tmp, rows,cols,dim_add,size_vec);
+          func_along_axis_onDev<double>(add_functor<double>(),mat_in,vec,mat_out_tmp, rows,cols,dim_add,size_vec);
 
           if (!double_equal(mat_in ,mat_out_tmp,size_vec,ADD_ALONG_AXIS_THRESHOLD)){
              printf("For rows:%d,cols:%d ADD_ALONG_AXIS and 0 not compatible\n\n",rows,cols);
@@ -117,8 +118,8 @@ int main(int argc, char **argv)
 
           create_random_matrix(vec,size_vec,1,2); // notice there should not be a zero
 
-          div_along_axis_cpu(mat_in,vec,mat_out, rows,cols,dim_div,size_vec);
-          div_along_axis_gpu(mat_in,vec,mat_out_tmp, rows,cols,dim_div,size_vec);
+          func_along_axis_onDev<double>(div_functor<double>(),mat_in,vec,mat_out, rows,cols,dim_div,size_vec);
+          func_along_axis_onDev<double>(div_functor<double>(),mat_in,vec,mat_out_tmp, rows,cols,dim_div,size_vec);
 
           // // check for equal result
           if (!double_equal(mat_out_tmp,mat_out,rows*cols,DIV_ALONG_AXIS_THRESHOLD)){
